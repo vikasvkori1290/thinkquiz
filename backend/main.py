@@ -43,3 +43,48 @@ async def get_user_stats_route(user_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+from pydantic import BaseModel
+from typing import Optional
+from services.ai import generate_socratic_quiz
+from services.cache import get_cached_quiz, set_cached_quiz
+
+class GenerateRequest(BaseModel):
+    leetcode_slug: Optional[str] = None
+    concept_topic: Optional[str] = None
+
+@app.post("/api/generate")
+async def generate_quiz(req: GenerateRequest):
+    if not req.leetcode_slug and not req.concept_topic:
+        raise HTTPException(status_code=400, detail="Must provide either leetcode_slug or concept_topic")
+    
+    # 1. Generate a unique cache key (using v2 to bypass old corrupted cache)
+    if req.leetcode_slug:
+        cache_key = f"quiz_v2:leetcode:{req.leetcode_slug}"
+    else:
+        # clean the concept string for cache key
+        safe_topic = req.concept_topic.lower().replace(" ", "-")
+        cache_key = f"quiz_v2:concept:{safe_topic}"
+        
+    # 2. Check Redis via get_cached_quiz
+    cached_data = await get_cached_quiz(cache_key)
+    if cached_data:
+        return cached_data
+        
+    # 3. If miss: Fetch data & generate
+    try:
+        problem_data = None
+        if req.leetcode_slug:
+            data = await fetch_leetcode_problem(req.leetcode_slug)
+            if not data.get("data") or not data["data"].get("question"):
+                raise HTTPException(status_code=404, detail="Problem not found")
+            problem_data = data["data"]["question"]
+            
+        quiz_json = await generate_socratic_quiz(problem_data, req.concept_topic)
+        
+        # Save result to Redis
+        await set_cached_quiz(cache_key, quiz_json)
+        
+        return quiz_json
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
