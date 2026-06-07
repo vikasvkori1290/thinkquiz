@@ -88,3 +88,14 @@ async def generate_quiz(req: GenerateRequest):
         return quiz_json
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+from schemas import QuizSubmission, GamificationUpdate
+from services.gamification import process_quiz_submission
+
+@app.post("/api/quiz/submit", response_model=GamificationUpdate)
+async def submit_quiz(submission: QuizSubmission):
+    try:
+        result = await process_quiz_submission(submission)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

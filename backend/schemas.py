@@ -14,3 +14,14 @@ class QuizResponse(BaseModel):
     source: str
     id_or_concept: str
     questions: List[QuizQuestion]
+
+class QuizSubmission(BaseModel):
+    user_id: str
+    quiz_id_or_concept: str
+    score: int
+
+class GamificationUpdate(BaseModel):
+    new_xp: int
+    new_level: int
+    streak: int
+    leveled_up: bool
