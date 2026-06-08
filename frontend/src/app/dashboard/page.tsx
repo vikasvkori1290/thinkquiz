@@ -7,7 +7,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Flame, Loader2, Search, BrainCircuit, ArrowRight } from "lucide-react";
+import { Flame, Loader2, Search, BrainCircuit, ArrowRight, LogOut } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
@@ -21,6 +24,35 @@ export default function Dashboard() {
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [gamificationResult, setGamificationResult] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
+  
+  const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
+        
+        // Fetch initial gamification stats
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/${user.id}/stats`)
+          .then(res => res.ok ? res.json() : null)
+          .then(stats => {
+            if (stats) {
+              setGamificationResult({
+                new_xp: stats.current_xp,
+                new_level: stats.current_level,
+                streak: stats.streak_days,
+                leveled_up: false
+              });
+            } else {
+              setGamificationResult({ new_xp: 0, new_level: 1, streak: 0, leveled_up: false });
+            }
+          })
+          .catch(console.error);
+      }
+    });
+  }, []);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -88,7 +120,7 @@ export default function Dashboard() {
       setIsFinished(true);
       try {
         const payload = {
-          user_id: "a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6", // Using your UUID!
+          user_id: user?.id || "a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6", // Using your real UUID!
           quiz_id_or_concept: quizData.id_or_concept,
           score: currentScore
         };
@@ -135,10 +167,23 @@ export default function Dashboard() {
           </div>
 
           {/* Right: Avatar */}
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
             <Avatar className="border-2 border-border h-9 w-9">
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">VK</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
+                {user?.email?.substring(0, 2).toUpperCase() || "VK"}
+              </AvatarFallback>
             </Avatar>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                router.push("/login");
+              }}
+              title="Sign Out"
+            >
+              <LogOut className="h-5 w-5 text-muted-foreground" />
+            </Button>
           </div>
         </div>
       </header>
