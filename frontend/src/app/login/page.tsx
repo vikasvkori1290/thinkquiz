@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -89,6 +90,11 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12"
                 />
+                <div className="flex justify-end">
+                  <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+                    Forgot your password?
+                  </Link>
+                </div>
               </div>
             </>
           ) : (
