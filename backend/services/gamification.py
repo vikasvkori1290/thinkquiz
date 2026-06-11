@@ -3,6 +3,12 @@ from database import supabase
 from schemas import QuizSubmission, GamificationUpdate
 
 async def process_quiz_submission(submission: QuizSubmission) -> GamificationUpdate:
+    # Ensure user exists in public.users to prevent foreign key errors
+    user_check = supabase.table("users").select("id").eq("id", submission.user_id).execute()
+    if not user_check.data:
+        # We don't have the email/username here easily, so we just insert the ID to satisfy the FK
+        supabase.table("users").insert({"id": str(submission.user_id)}).execute()
+
     # Step 1: Insert into quiz_attempts
     supabase.table("quiz_attempts").insert({
         "user_id": submission.user_id,
