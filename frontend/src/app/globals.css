@@ -13,8 +13,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 38 55% 62%;
+    --primary-foreground: 0 0% 10%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 0 0% 10%;
@@ -30,7 +30,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 217 91% 60%;
+    --ring: 38 55% 62%;
 
     --radius: 0.5rem;
   }
@@ -45,8 +45,8 @@
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 38 55% 62%;
+    --primary-foreground: 0 0% 10%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 0 0% 100%;
@@ -62,7 +62,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 217 91% 60%;
+    --ring: 38 55% 62%;
   }
 }
 
@@ -72,5 +72,20 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-size: 100px 100px;
+    background-image: 
+      linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  }
+
+  .dark .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   }
 }
