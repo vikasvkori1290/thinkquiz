@@ -4,8 +4,24 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "ThinkQuiz",
-  description: "Socratic AI Learning Platform",
+  title: "ThinkQuiz | The Ultimate Coding Interview Platform",
+  description: "Master LeetCode and System Design through AI-guided Socratic quizzes, not just code dumps. Level up your engineering skills today.",
+  openGraph: {
+    title: "ThinkQuiz | The Ultimate Coding Interview Platform",
+    description: "Master LeetCode and System Design through AI-guided Socratic quizzes. Level up your engineering skills today.",
+    url: "https://thinkquiz.com",
+    siteName: "ThinkQuiz",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "ThinkQuiz Preview",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
