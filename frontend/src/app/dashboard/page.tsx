@@ -97,9 +97,14 @@ export default async function DashboardPage() {
             <BrainCircuit className="h-6 w-6 text-primary" />
             <span className="font-bold text-xl tracking-tight">ThinkQuiz</span>
           </Link>
-          <Link href="/quiz" className="flex items-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium transition-colors">
-            Play Quiz
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/leaderboard" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
+              Leaderboard
+            </Link>
+            <Link href="/quiz" className="flex items-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium transition-colors">
+              Play Quiz
+            </Link>
+          </div>
         </div>
       </header>
 

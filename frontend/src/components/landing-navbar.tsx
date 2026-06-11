@@ -44,6 +44,9 @@ export function LandingNavbar({ user }: LandingNavbarProps) {
             <Link href="/quiz" passHref className="text-sm font-medium hover:text-primary transition-colors">
               Quiz
             </Link>
+            <Link href="/leaderboard" passHref className="text-sm font-medium hover:text-primary transition-colors">
+              Leaderboard
+            </Link>
             <ThemeToggle />
             
             {user ? (

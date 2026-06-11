@@ -179,6 +179,9 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
 
           {/* Right: Avatar */}
           <div className="flex items-center gap-4">
+            <Link href="/leaderboard" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
+              Leaderboard
+            </Link>
             <Link href="/dashboard">
               <Avatar className="border-2 border-border h-9 w-9 cursor-pointer hover:border-primary transition-colors">
                 <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
