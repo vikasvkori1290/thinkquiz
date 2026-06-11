@@ -11,6 +11,10 @@ import { Flame, Loader2, Search, BrainCircuit, ArrowRight, LogOut } from "lucide
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Link from "next/link";
+import confetti from "canvas-confetti";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
@@ -133,6 +137,9 @@ export default function Dashboard() {
         
         const data = await res.json();
         setGamificationResult(data);
+        if (data.leveled_up || currentScore === quizData.questions.length) {
+          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        }
         alert(`🎉 Quiz Complete! Score: ${currentScore}/${quizData.questions.length}\n🔥 You now have ${data.new_xp} XP!\n⚡ Streak: ${data.streak} days\n${data.leveled_up ? '🌟 YOU LEVELED UP!' : ''}`);
       } catch (err) {
         console.error(err);
@@ -147,10 +154,10 @@ export default function Dashboard() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4 max-w-6xl mx-auto w-full">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <BrainCircuit className="h-6 w-6 text-primary" />
             <span className="font-bold text-xl tracking-tight">ThinkQuiz</span>
-          </div>
+          </Link>
 
           {/* Center Section: Progress & Streak */}
           <div className="hidden md:flex items-center gap-6 flex-1 justify-center max-w-md">
@@ -173,6 +180,7 @@ export default function Dashboard() {
                 {user?.email?.substring(0, 2).toUpperCase() || "VK"}
               </AvatarFallback>
             </Avatar>
+            <ThemeToggle />
             <Button 
               variant="ghost" 
               size="icon" 
@@ -225,6 +233,27 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Skeleton Loading State */}
+        {isSearching && (
+          <div className="w-full max-w-2xl animate-in fade-in duration-500">
+            <Card className="border-border shadow-sm">
+              <CardHeader className="bg-muted/30 border-b pb-6 rounded-t-lg">
+                <Skeleton className="h-4 w-32 mb-4" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-4/5 mt-2" />
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="flex flex-col gap-4">
+                  <Skeleton className="h-14 w-full" />
+                  <Skeleton className="h-14 w-full" />
+                  <Skeleton className="h-14 w-full" />
+                  <Skeleton className="h-14 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Quiz Engine */}
         {quizData && !isFinished && (
           <div className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -250,7 +279,7 @@ export default function Dashboard() {
                     const isWrongSelection = isSelected && !isCorrect;
                     
                     let buttonVariant: "default" | "outline" | "secondary" = "outline";
-                    let buttonClass = "h-auto py-4 text-base justify-start px-6 font-medium transition-all hover:bg-muted text-left whitespace-normal";
+                    let buttonClass = "h-auto py-4 text-base justify-start px-6 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:bg-muted text-left whitespace-normal";
                     
                     if (selectedOption) {
                       if (isCorrect) {
