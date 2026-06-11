@@ -14,7 +14,7 @@ export default async function LeaderboardPage() {
   // 2. Fetch Top 10 Users by XP
   const { data: topUsers } = await supabase
     .from('user_stats')
-    .select('user_id, current_xp, level')
+    .select('user_id, current_xp, level, username, first_name')
     .order('current_xp', { ascending: false })
     .limit(10);
 
@@ -94,7 +94,18 @@ export default async function LeaderboardPage() {
 
                 // Generate a consistent pseudo-username using the first 5 chars of UUID
                 const shortId = stat.user_id.substring(0, 5).toUpperCase();
-                const displayName = `Scholar #${shortId}`;
+                
+                // Prioritize username, then first_name, then fallback to Scholar #ID
+                let displayName = `Scholar #${shortId}`;
+                let initials = shortId.substring(0, 2);
+                
+                if (stat.username) {
+                  displayName = `@${stat.username}`;
+                  initials = stat.username.substring(0, 2).toUpperCase();
+                } else if (stat.first_name) {
+                  displayName = stat.first_name;
+                  initials = stat.first_name.substring(0, 2).toUpperCase();
+                }
 
                 return (
                   <div key={stat.user_id} className={`flex items-center px-6 py-4 ${rowBg}`}>
@@ -105,7 +116,7 @@ export default async function LeaderboardPage() {
                     <div className="flex-1 px-4 flex items-center gap-3">
                       <Avatar className={`h-10 w-10 border ${isTop3 ? 'border-background shadow-md' : 'border-border'}`}>
                         <AvatarFallback className={`${rank === 1 ? 'bg-[#fbcc45]/20 text-[#fbcc45]' : rank === 2 ? 'bg-[#C0C0C0]/20 text-[#C0C0C0]' : rank === 3 ? 'bg-[#CD7F32]/20 text-[#CD7F32]' : 'bg-primary/10 text-primary'} font-semibold`}>
-                          {shortId.substring(0, 2)}
+                          {initials}
                         </AvatarFallback>
                       </Avatar>
                       <span className={`font-semibold ${isTop3 ? 'text-foreground text-lg' : 'text-foreground/90'}`}>

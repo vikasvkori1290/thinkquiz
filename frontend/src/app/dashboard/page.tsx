@@ -7,6 +7,7 @@ import { ArrowLeft, Flame, BrainCircuit, Trophy, CheckCircle2 } from "lucide-rea
 import { ThemeInput } from "react-activity-calendar";
 import { format, subDays, formatDistanceToNow } from "date-fns";
 import { ActivityGraphClient } from "./ActivityGraphClient";
+import { EditProfileModal } from "@/components/edit-profile-modal";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -111,15 +112,28 @@ export default async function DashboardPage() {
       <main className="flex-1 flex flex-col items-center p-4 pt-12 max-w-6xl mx-auto w-full">
         
         {/* Profile Header */}
-        <div className="flex flex-col md:flex-row items-center gap-6 w-full mb-12">
+        <div className="flex flex-col md:flex-row items-center gap-6 w-full mb-12 relative">
           <Avatar className="h-24 w-24 border-4 border-background shadow-xl ring-2 ring-primary/20">
             <AvatarFallback className="bg-primary/10 text-primary text-3xl font-bold">
-              {user.email?.substring(0, 2).toUpperCase() || "U"}
+              {userStats?.first_name ? userStats.first_name.charAt(0).toUpperCase() : user.email?.substring(0, 2).toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
-          <div className="text-center md:text-left">
-            <h1 className="text-3xl font-bold tracking-tight">{user.email}</h1>
-            <p className="text-muted-foreground">Joined {new Date(user.created_at).toLocaleDateString()}</p>
+          <div className="text-center md:text-left flex-1">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">
+                  {userStats?.first_name ? `${userStats.first_name} ${userStats.last_name || ''}` : user.email}
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  {userStats?.username ? `@${userStats.username} • ` : ''}Joined {new Date(user.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <EditProfileModal 
+                userEmail={user.email || ""} 
+                userId={user.id} 
+                initialStats={userStats} 
+              />
+            </div>
           </div>
         </div>
 
