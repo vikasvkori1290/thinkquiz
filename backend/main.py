@@ -60,6 +60,15 @@ async def generate_quiz(req: GenerateRequest):
     
     # 1. Generate a unique cache key (using v2 to bypass old corrupted cache)
     if req.leetcode_slug:
+        # Intercept purely numeric searches and map them to their corresponding slug
+        if req.leetcode_slug.isdigit():
+            from services.leetcode import get_slug_from_number
+            mapped_slug = await get_slug_from_number(int(req.leetcode_slug))
+            if mapped_slug:
+                req.leetcode_slug = mapped_slug
+            else:
+                raise HTTPException(status_code=404, detail=f"Question number {req.leetcode_slug} not found.")
+                
         cache_key = f"quiz_v2:leetcode:{req.leetcode_slug}"
     else:
         # clean the concept string for cache key

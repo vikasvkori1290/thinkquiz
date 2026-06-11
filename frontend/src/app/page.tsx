@@ -51,7 +51,7 @@ export default async function Home() {
               Master LeetCode and System Design through AI-guided Socratic quizzes, not just code dumps.
             </p>
             <div className="flex flex-wrap items-center gap-4">
-              <Link href="/dashboard" passHref>
+              <Link href="/quiz" passHref>
                 <Button size="lg" className="text-lg px-8 py-6 h-auto font-semibold">
                   Start Learning for Free
                   <ArrowRight className="ml-2 h-5 w-5" />

@@ -41,7 +41,7 @@ export function LandingNavbar({ user }: LandingNavbarProps) {
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" passHref className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/quiz" passHref className="text-sm font-medium hover:text-primary transition-colors">
               Quiz
             </Link>
             <ThemeToggle />
@@ -61,7 +61,7 @@ export function LandingNavbar({ user }: LandingNavbarProps) {
                     Sign In
                   </Button>
                 </Link>
-                <Link href="/dashboard" passHref>
+                <Link href="/quiz" passHref>
                   <Button className={`font-medium transition-all duration-500 ease-in-out ${isScrolled ? "rounded-full" : ""}`}>
                     Get Started
                     <ArrowRight className="ml-2 h-4 w-4" />
