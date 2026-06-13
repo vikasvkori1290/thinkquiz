@@ -8,6 +8,7 @@ import { ThemeInput } from "react-activity-calendar";
 import { format, subDays, formatDistanceToNow } from "date-fns";
 import { ActivityGraphClient } from "./ActivityGraphClient";
 import { EditProfileModal } from "@/components/edit-profile-modal";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -105,6 +106,7 @@ export default async function DashboardPage() {
             <Link href="/quiz" className="flex items-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium transition-colors">
               Play Quiz
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </header>
