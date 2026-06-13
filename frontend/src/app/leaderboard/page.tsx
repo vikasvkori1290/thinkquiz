@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BrainCircuit, Trophy, Medal, Star } from "lucide-react";
+import { CommandMenu } from "@/components/command-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function LeaderboardPage() {
   const supabase = await createClient();
@@ -44,6 +46,8 @@ export default async function LeaderboardPage() {
                 </Avatar>
               </Link>
             )}
+            <CommandMenu />
+            <ThemeToggle />
           </div>
         </div>
       </header>

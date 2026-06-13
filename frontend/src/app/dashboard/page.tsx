@@ -9,6 +9,7 @@ import { format, subDays, formatDistanceToNow } from "date-fns";
 import { ActivityGraphClient } from "./ActivityGraphClient";
 import { EditProfileModal } from "@/components/edit-profile-modal";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CommandMenu } from "@/components/command-menu";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -103,9 +104,10 @@ export default async function DashboardPage() {
             <Link href="/leaderboard" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
               Leaderboard
             </Link>
-            <Link href="/quiz" className="flex items-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium transition-colors">
+            <Link href="/quiz" className="hidden sm:flex items-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium transition-colors">
               Play Quiz
             </Link>
+            <CommandMenu />
             <ThemeToggle />
           </div>
         </div>

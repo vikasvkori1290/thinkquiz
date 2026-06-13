@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CommandMenu } from "@/components/command-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserStats {
@@ -194,6 +195,7 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
                 </AvatarFallback>
               </Avatar>
             </Link>
+            <CommandMenu />
             <ThemeToggle />
             <Button 
               variant="ghost" 

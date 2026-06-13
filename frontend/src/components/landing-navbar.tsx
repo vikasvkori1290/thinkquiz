@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BrainCircuit, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CommandMenu } from "@/components/command-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface LandingNavbarProps {
@@ -47,6 +48,7 @@ export function LandingNavbar({ user }: LandingNavbarProps) {
             <Link href="/leaderboard" passHref className="text-sm font-medium hover:text-primary transition-colors">
               Leaderboard
             </Link>
+            <CommandMenu />
             <ThemeToggle />
             
             {user ? (
@@ -60,14 +62,8 @@ export function LandingNavbar({ user }: LandingNavbarProps) {
             ) : (
               <>
                 <Link href="/login" passHref>
-                  <Button variant="ghost" className="hidden sm:flex font-medium">
+                  <Button className="hidden sm:flex font-medium">
                     Sign In
-                  </Button>
-                </Link>
-                <Link href="/quiz" passHref>
-                  <Button className={`font-medium transition-all duration-500 ease-in-out ${isScrolled ? "rounded-full" : ""}`}>
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               </>
