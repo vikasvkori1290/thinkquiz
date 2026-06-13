@@ -1,23 +1,25 @@
 import datetime
-from database import supabase
+from database import supabase, get_scoped_client
 from schemas import QuizSubmission, GamificationUpdate
 
-async def process_quiz_submission(submission: QuizSubmission) -> GamificationUpdate:
+async def process_quiz_submission(submission: QuizSubmission, token: str = None) -> GamificationUpdate:
+    scoped_supabase = get_scoped_client(token)
+
     # Ensure user exists in public.users to prevent foreign key errors
-    user_check = supabase.table("users").select("id").eq("id", submission.user_id).execute()
+    user_check = scoped_supabase.table("users").select("id").eq("id", submission.user_id).execute()
     if not user_check.data:
         # We don't have the email/username here easily, so we just insert the ID to satisfy the FK
-        supabase.table("users").insert({"id": str(submission.user_id)}).execute()
+        scoped_supabase.table("users").insert({"id": str(submission.user_id)}).execute()
 
     # Step 1: Insert into quiz_attempts
-    supabase.table("quiz_attempts").insert({
+    scoped_supabase.table("quiz_attempts").insert({
         "user_id": submission.user_id,
         "problem_slug": submission.quiz_id_or_concept,
         "score": submission.score
     }).execute()
 
     # Step 2: Fetch user's current record
-    response = supabase.table("user_stats").select("*").eq("user_id", submission.user_id).execute()
+    response = scoped_supabase.table("user_stats").select("*").eq("user_id", submission.user_id).execute()
     
     if not response.data:
         # Fallback if the user_stats row doesn't exist yet
@@ -52,7 +54,7 @@ async def process_quiz_submission(submission: QuizSubmission) -> GamificationUpd
         new_streak = 1
 
     # Step 5: Update user_stats
-    supabase.table("user_stats").upsert({
+    scoped_supabase.table("user_stats").upsert({
         "user_id": submission.user_id,
         "current_xp": new_xp,
         "level": new_level,

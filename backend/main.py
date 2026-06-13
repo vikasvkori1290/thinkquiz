@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from services.leetcode import fetch_leetcode_problem
 from services.user import get_user_stats
@@ -98,13 +98,19 @@ async def generate_quiz(req: GenerateRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+from fastapi import Header
 from schemas import QuizSubmission, GamificationUpdate
 from services.gamification import process_quiz_submission
 
+async def get_token(authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    return authorization.split(" ")[1]
+
 @app.post("/api/quiz/submit", response_model=GamificationUpdate)
-async def submit_quiz(submission: QuizSubmission):
+async def submit_quiz(submission: QuizSubmission, token: str = Depends(get_token)):
     try:
-        result = await process_quiz_submission(submission)
+        result = await process_quiz_submission(submission, token)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

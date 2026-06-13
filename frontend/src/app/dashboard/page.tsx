@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   }
 
   // 2. Fetch User Stats
-  let userStats = { current_xp: 0, current_level: 1, current_streak: 0 };
+  let userStats: any = { current_xp: 0, current_level: 1, current_streak: 0 };
   const { data: statsData } = await supabase
     .from('user_stats')
     .select('*')
