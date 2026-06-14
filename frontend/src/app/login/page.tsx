@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
+  const [isSignUpMode, setIsSignUpMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -52,6 +53,12 @@ export default function LoginPage() {
     }
   };
 
+  const toggleMode = () => {
+    setIsSignUpMode(!isSignUpMode);
+    setEmail("");
+    setPassword("");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg border-border">
@@ -62,12 +69,18 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight">
-            {showOtpInput ? "Verify your email" : "Welcome back"}
+            {showOtpInput 
+              ? "Verify your email" 
+              : isSignUpMode 
+                ? "Create an Account" 
+                : "Welcome back"}
           </CardTitle>
           <p className="text-muted-foreground mt-2">
             {showOtpInput 
               ? `We sent a 6-digit code to ${email}`
-              : "Sign in to your ThinkQuiz account"}
+              : isSignUpMode
+                ? "Enter your email below to create your account"
+                : "Sign in to your ThinkQuiz account"}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -90,11 +103,13 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12"
                 />
-                <div className="flex justify-end">
-                  <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
-                    Forgot your password?
-                  </Link>
-                </div>
+                {!isSignUpMode && (
+                  <div className="flex justify-end">
+                    <Link href="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+                      Forgot your password?
+                    </Link>
+                  </div>
+                )}
               </div>
             </>
           ) : (
@@ -113,23 +128,38 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col gap-3 pt-4">
           {!showOtpInput ? (
             <>
-              <Button 
-                className="w-full h-12 text-base font-semibold" 
-                onClick={handleSignIn}
-                disabled={loading || !email || !password}
-              >
-                {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                Sign In
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full h-12 text-base font-medium" 
-                onClick={handleSignUp}
-                disabled={loading || !email || !password}
-              >
-                {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                Create an Account
-              </Button>
+              {isSignUpMode ? (
+                <Button 
+                  className="w-full h-12 text-base font-semibold" 
+                  onClick={handleSignUp}
+                  disabled={loading || !email || !password}
+                >
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                  Create Account
+                </Button>
+              ) : (
+                <Button 
+                  className="w-full h-12 text-base font-semibold" 
+                  onClick={handleSignIn}
+                  disabled={loading || !email || !password}
+                >
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                  Sign In
+                </Button>
+              )}
+              
+              <div className="mt-4 text-center text-sm">
+                <span className="text-muted-foreground">
+                  {isSignUpMode ? "Already have an account? " : "Don't have an account? "}
+                </span>
+                <button 
+                  onClick={toggleMode}
+                  className="text-primary font-semibold hover:underline bg-transparent border-none cursor-pointer"
+                  disabled={loading}
+                >
+                  {isSignUpMode ? "Sign in" : "Sign up"}
+                </button>
+              </div>
             </>
           ) : (
             <Button 
