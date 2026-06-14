@@ -42,6 +42,9 @@ export function LandingNavbar({ user }: LandingNavbarProps) {
 
           {/* Right Section */}
           <div className="flex items-center gap-4">
+            <Link href="/history" passHref className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
+              History
+            </Link>
             <Link href="/quiz" passHref className="text-sm font-medium hover:text-primary transition-colors">
               Quiz
             </Link>

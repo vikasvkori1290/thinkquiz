@@ -31,6 +31,9 @@ export default async function LeaderboardPage() {
           </Link>
           
           <div className="flex items-center gap-4">
+            <Link href="/history" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
+              History
+            </Link>
             <Link href="/quiz" className="text-sm font-medium hover:text-primary transition-colors">
               Play Quiz
             </Link>

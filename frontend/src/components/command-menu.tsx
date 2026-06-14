@@ -12,7 +12,8 @@ import {
   Trophy,
   Settings,
   Search,
-  Home
+  Home,
+  History
 } from "lucide-react";
 
 import {
@@ -79,6 +80,10 @@ export function CommandMenu() {
             <CommandItem onSelect={() => runCommand(() => router.push("/leaderboard"))}>
               <Trophy className="mr-2 h-4 w-4" />
               <span>Leaderboard</span>
+            </CommandItem>
+            <CommandItem onSelect={() => runCommand(() => router.push("/history"))}>
+              <History className="mr-2 h-4 w-4" />
+              <span>History</span>
             </CommandItem>
           </CommandGroup>
           <CommandSeparator />

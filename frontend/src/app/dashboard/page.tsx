@@ -101,6 +101,9 @@ export default async function DashboardPage() {
             <span className="font-bold text-xl tracking-tight">ThinkQuiz</span>
           </Link>
           <div className="flex items-center gap-4">
+            <Link href="/history" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
+              History
+            </Link>
             <Link href="/leaderboard" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
               Leaderboard
             </Link>
