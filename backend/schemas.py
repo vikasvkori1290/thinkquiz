@@ -19,6 +19,7 @@ class QuizSubmission(BaseModel):
     user_id: str
     quiz_id_or_concept: str
     score: int
+    xp_earned: int
 
 class GamificationUpdate(BaseModel):
     new_xp: int

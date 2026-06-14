@@ -1,4 +1,5 @@
 import datetime
+from fastapi import HTTPException
 from database import supabase, get_scoped_client
 from schemas import QuizSubmission, GamificationUpdate
 
@@ -10,6 +11,13 @@ async def process_quiz_submission(submission: QuizSubmission, token: str = None)
     if not user_check.data:
         # We don't have the email/username here easily, so we just insert the ID to satisfy the FK
         scoped_supabase.table("users").insert({"id": str(submission.user_id)}).execute()
+
+    # Anti-Farming Security: Check if user already submitted this topic today
+    today_iso = datetime.date.today().isoformat()
+    recent_attempts = scoped_supabase.table("quiz_attempts").select("id").eq("user_id", submission.user_id).eq("problem_slug", submission.quiz_id_or_concept).gte("completed_at", today_iso).execute()
+    
+    if recent_attempts.data:
+        raise HTTPException(status_code=403, detail="Cooldown: You have already completed this topic today.")
 
     # Step 1: Insert into quiz_attempts
     scoped_supabase.table("quiz_attempts").insert({
@@ -35,7 +43,7 @@ async def process_quiz_submission(submission: QuizSubmission, token: str = None)
         last_active_date = stats.get("last_active_date")
 
     # Step 3: XP & Level
-    new_xp = current_xp + (submission.score * 10)
+    new_xp = current_xp + submission.xp_earned
     new_level = (new_xp // 100) + 1
     leveled_up = new_level > level
 

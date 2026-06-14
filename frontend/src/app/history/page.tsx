@@ -96,16 +96,35 @@ export default async function HistoryPage() {
                     </div>
                     
                     <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto gap-2">
-                      <div className="text-2xl font-bold font-mono">
-                        {attempt.score}/3
+                      <div className="flex items-center gap-4 sm:flex-col sm:gap-2">
+                        <div className="text-2xl font-bold font-mono">
+                          {attempt.score}/3
+                        </div>
+                        {isPerfect ? (
+                          <Badge variant="default" className="bg-[#fbcc45] text-black hover:bg-[#fbcc45]/90 border-none font-bold">Flawless</Badge>
+                        ) : isGood ? (
+                          <Badge variant="secondary" className="bg-primary/20 text-primary hover:bg-primary/30 font-bold border-none">Good Effort</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-muted-foreground border-border font-medium">Review Needed</Badge>
+                        )}
                       </div>
-                      {isPerfect ? (
-                        <Badge variant="default" className="bg-[#fbcc45] text-black hover:bg-[#fbcc45]/90 border-none font-bold">Flawless</Badge>
-                      ) : isGood ? (
-                        <Badge variant="secondary" className="bg-primary/20 text-primary hover:bg-primary/30 font-bold border-none">Good Effort</Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-muted-foreground border-border font-medium">Review Needed</Badge>
-                      )}
+                      
+                      <div className="mt-2 sm:mt-4">
+                        {new Date(attempt.completed_at).toDateString() === new Date().toDateString() ? (
+                          <div className="flex flex-col items-end gap-1">
+                            <Button disabled variant="secondary" size="sm" className="h-8">
+                              Completed Today
+                            </Button>
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                              Cooldown: Resets Tomorrow
+                            </Badge>
+                          </div>
+                        ) : (
+                          <Link href={`/quiz?topic=${attempt.problem_slug}`}>
+                            <Button size="sm" className="h-8">Play Quiz</Button>
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Card>

@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { QuizClient } from "./quiz-client";
 
-export default async function QuizPage() {
+export default async function QuizPage({ searchParams }: { searchParams: { topic?: string } }) {
   const supabase = await createClient();
   
   // 1. Fetch authenticated user
@@ -11,6 +11,23 @@ export default async function QuizPage() {
   // If no user is logged in, securely redirect to login
   if (authError || !user) {
     redirect("/login");
+  }
+
+  // Anti-Farming Security: Check if they are trying to replay a completed quiz via URL
+  if (searchParams.topic) {
+    const today = new Date().toISOString().split('T')[0];
+    const { data: recentAttempt } = await supabase
+      .from('quiz_attempts')
+      .select('id, completed_at')
+      .eq('user_id', user.id)
+      .eq('problem_slug', searchParams.topic)
+      .gte('completed_at', today)
+      .limit(1)
+      .single();
+      
+    if (recentAttempt) {
+      redirect("/dashboard");
+    }
   }
 
   // 2. Fetch user's live stats from `user_stats` table
@@ -26,6 +43,16 @@ export default async function QuizPage() {
     userStats = statsData;
   }
 
-  // 3. Hydrate the client component with real data
-  return <QuizClient user={user} initialStats={userStats} />;
+  // 3. Fetch all topics completed today to block search
+  const today = new Date().toISOString().split('T')[0];
+  const { data: todayAttempts } = await supabase
+    .from('quiz_attempts')
+    .select('problem_slug')
+    .eq('user_id', user.id)
+    .gte('completed_at', today);
+    
+  const completedTodaySlugs = todayAttempts?.map(a => a.problem_slug) || [];
+
+  // 4. Hydrate the client component with real data
+  return <QuizClient user={user} initialStats={userStats} completedTodaySlugs={completedTodaySlugs} />;
 }

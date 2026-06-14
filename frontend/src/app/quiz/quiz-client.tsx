@@ -25,18 +25,22 @@ interface UserStats {
 interface QuizClientProps {
   user: any;
   initialStats: UserStats;
+  completedTodaySlugs?: string[];
 }
 
-export function QuizClient({ user, initialStats }: QuizClientProps) {
+export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: QuizClientProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchMode, setSearchMode] = useState<"leetcode" | "concept">("leetcode");
+  const [searchError, setSearchError] = useState<string | null>(null);
   
   // Real Quiz State
   const [quizData, setQuizData] = useState<any>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<any>(null);
+  const [isRevealed, setIsRevealed] = useState(false);
   const [score, setScore] = useState(0);
+  const [xpEarned, setXpEarned] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   
   // Hydrate local state with initialStats passed from server
@@ -62,8 +66,11 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
     setQuizData(null);
     setCurrentQuestionIndex(0);
     setSelectedOption(null);
+    setIsRevealed(false);
     setScore(0);
+    setXpEarned(0);
     setIsFinished(false);
+    setSearchError(null);
     
     try {
       const formattedSlug = searchQuery.trim().toLowerCase().replace(/\s+/g, '-');
@@ -82,6 +89,14 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
       if (!res.ok) {
         throw new Error(data.detail || "Failed to generate quiz");
       }
+
+      // Final UI check: does the generated slug match a completed one?
+      if (completedTodaySlugs.includes(data.id_or_concept)) {
+         setSearchError("Cooldown: You have already completed this topic today. Please try a different topic.");
+         setIsSearching(false);
+         setSearchQuery("");
+         return;
+      }
       
       if (!data.questions || !Array.isArray(data.questions)) {
         throw new Error("Invalid quiz data received from server");
@@ -95,32 +110,45 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
       setQuizData(data);
     } catch (err: any) {
       console.error(err);
-      alert(`Error: ${err.message}`);
+      setSearchError(err.message || "An unexpected error occurred.");
     } finally {
       setIsSearching(false);
     }
   };
 
   const handleOptionSelect = (option: any) => {
-    if (selectedOption) return;
+    if (selectedOption || isRevealed) return;
     setSelectedOption(option);
+    
+    if (option.is_correct) {
+      setScore(prev => prev + 1);
+      setXpEarned(prev => prev + 10);
+    } else {
+      setXpEarned(prev => prev - 5);
+    }
+  };
+
+  const handleRevealAnswer = () => {
+    if (selectedOption || isRevealed) return;
+    setIsRevealed(true);
+    const correctOption = quizData.questions[currentQuestionIndex].options.find((o: any) => o.is_correct);
+    setSelectedOption(correctOption);
+    // +0 XP for revealing
   };
 
   const handleNextQuestion = async () => {
-    const earnedPoint = selectedOption?.is_correct ? 1 : 0;
-    const currentScore = score + earnedPoint;
-    setScore(currentScore);
-
     if (currentQuestionIndex < quizData.questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedOption(null);
+      setIsRevealed(false);
     } else {
       setIsFinished(true);
       try {
         const payload = {
           user_id: user.id,
           quiz_id_or_concept: quizData.id_or_concept,
-          score: currentScore
+          score: score,
+          xp_earned: xpEarned
         };
 
         const { data: { session } } = await supabase.auth.getSession();
@@ -137,6 +165,11 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
         const data = await res.json();
 
         if (!res.ok) {
+          if (res.status === 403) {
+            alert(data.detail || "Cooldown: You have already completed this topic today.");
+            router.push("/dashboard");
+            return;
+          }
           throw new Error(data.detail || "Failed to submit quiz to server");
         }
         
@@ -148,12 +181,12 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
           leveled_up: data.leveled_up
         });
         
-        if (data.leveled_up || currentScore === quizData.questions.length) {
+        if (data.leveled_up || score === quizData.questions.length) {
           confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
-        alert("Failed to submit quiz results.");
+        alert(err.message || "Failed to submit quiz results.");
       }
     }
   };
@@ -248,7 +281,15 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
                 <Search className="h-5 w-5" />
               )}
             </Button>
+            </Button>
           </div>
+
+          {/* Inline Error Message */}
+          {searchError && (
+            <div className="w-full p-4 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium animate-in fade-in slide-in-from-top-2">
+              {searchError}
+            </div>
+          )}
         </div>
 
         {/* Skeleton Loading State */}
@@ -321,25 +362,40 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
                       </Button>
                     );
                   })}
+                  {!selectedOption && !isRevealed && (
+                    <Button 
+                      variant="ghost" 
+                      className="mt-2 text-muted-foreground hover:text-foreground font-medium" 
+                      onClick={handleRevealAnswer}
+                    >
+                      Reveal Answer (0 XP)
+                    </Button>
+                  )}
                 </div>
 
                 {/* Feedback State & Next Button */}
-                {selectedOption && (
+                {(selectedOption || isRevealed) && (
                   <div className="mt-6 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-300">
                     <div className={`p-4 rounded-lg border flex items-start gap-3 ${
-                      selectedOption.is_correct 
-                        ? "bg-primary/10 border-primary/20 text-primary" 
-                        : "bg-accent/10 border-accent/30 text-foreground"
+                      isRevealed 
+                        ? "bg-muted border-border text-foreground" 
+                        : selectedOption?.is_correct 
+                          ? "bg-primary/10 border-primary/20 text-primary" 
+                          : "bg-accent/10 border-accent/30 text-foreground"
                     }`}>
-                      {selectedOption.is_correct ? (
+                      {isRevealed ? (
                         <div className="font-semibold flex items-center gap-2">
-                          🎉 Correct! {selectedOption.hint_if_wrong || "Great job!"}
+                          👀 Answer Revealed! <span className="text-muted-foreground">0 XP</span>
+                        </div>
+                      ) : selectedOption?.is_correct ? (
+                        <div className="font-semibold flex items-center gap-2">
+                          🎉 Correct! <span className="text-green-500 font-bold ml-1">+10 XP</span> {selectedOption.hint_if_wrong && <span className="text-muted-foreground ml-2 font-normal">{selectedOption.hint_if_wrong}</span>}
                         </div>
                       ) : (
                         <div className="flex flex-col">
-                          <span className="font-bold text-[hsl(var(--accent))] mix-blend-multiply dark:mix-blend-normal mb-1">Not quite!</span>
+                          <span className="font-bold text-[hsl(var(--accent))] mix-blend-multiply dark:mix-blend-normal mb-1">Not quite! <span className="text-red-500 ml-1">-5 XP</span></span>
                           <span className="text-muted-foreground font-medium">
-                            Hint: {selectedOption.hint_if_wrong}
+                            Hint: {selectedOption?.hint_if_wrong}
                           </span>
                         </div>
                       )}
@@ -366,17 +422,17 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
                   <span className="text-5xl">🏆</span>
                 </div>
                 
-                <h2 className="text-4xl font-extrabold tracking-tight mb-2">Quiz Complete!</h2>
+                <h2 className="text-4xl font-extrabold tracking-tight mb-2">Quiz Completed!</h2>
                 <p className="text-lg text-muted-foreground mb-8">
                   You scored <strong className="text-foreground">{score}</strong> out of {quizData.questions.length} on <strong className="text-foreground">{quizData.id_or_concept}</strong>.
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 w-full max-w-md mb-10">
-                  <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 border border-border/50">
-                    <span className="text-3xl font-black text-[hsl(var(--accent))] drop-shadow-sm mix-blend-multiply dark:mix-blend-normal mb-1">
-                      +{score * 10} XP
+                  <div className={`flex flex-col items-center p-4 rounded-xl border border-border/50 ${xpEarned >= 0 ? "bg-green-500/10 border-green-500/20" : "bg-red-500/10 border-red-500/20"}`}>
+                    <span className={`text-3xl font-black drop-shadow-sm mb-1 ${xpEarned >= 0 ? "text-green-500" : "text-red-500"}`}>
+                      {xpEarned >= 0 ? "+" : ""}{xpEarned} XP
                     </span>
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Earned</span>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total XP Gained</span>
                   </div>
                   <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 border border-border/50">
                     <span className="text-3xl font-black text-primary drop-shadow-sm mb-1 flex items-center gap-1">
@@ -387,23 +443,18 @@ export function QuizClient({ user, initialStats }: QuizClientProps) {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="h-12 px-8 font-semibold border-primary/20 hover:bg-primary/5"
-                    onClick={() => {
-                      setQuizData(null);
-                      setSearchQuery("");
-                      setIsFinished(false);
-                      setCurrentQuestionIndex(0);
-                      setScore(0);
-                    }}
-                  >
-                    Play Another
-                  </Button>
+                  {searchMode === "leetcode" && (
+                    <Button 
+                      size="lg" 
+                      className="h-12 px-8 font-semibold shadow-md w-full sm:w-auto bg-[#fbcc45] text-black hover:bg-[#fbcc45]/90"
+                      onClick={() => window.open(`https://leetcode.com/problems/${quizData.id_or_concept}`, "_blank")}
+                    >
+                      Solve on LeetCode
+                    </Button>
+                  )}
                   <Link href="/dashboard" passHref>
-                    <Button size="lg" className="h-12 px-8 font-semibold shadow-md w-full sm:w-auto">
-                      View Profile Dashboard
+                    <Button size="lg" variant={searchMode === "leetcode" ? "outline" : "default"} className="h-12 px-8 font-semibold shadow-md w-full sm:w-auto">
+                      Return to Dashboard
                     </Button>
                   </Link>
                 </div>

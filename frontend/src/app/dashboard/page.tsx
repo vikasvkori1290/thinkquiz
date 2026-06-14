@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft, Flame, BrainCircuit, Trophy, CheckCircle2 } from "lucide-react";
 import { ThemeInput } from "react-activity-calendar";
 import { format, subDays, formatDistanceToNow } from "date-fns";
@@ -255,9 +256,23 @@ export default async function DashboardPage() {
                       <span className="font-bold text-[hsl(var(--accent))] mix-blend-multiply dark:mix-blend-normal text-lg">
                         +{attempt.score * 10} XP
                       </span>
-                      <span className="text-xs text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-sm">
+                      <span className="text-xs text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-sm mb-2">
                         Score: {attempt.score}
                       </span>
+                      {new Date(attempt.completed_at).toDateString() === new Date().toDateString() ? (
+                        <div className="flex flex-col items-end gap-1">
+                          <Button disabled variant="secondary" size="sm" className="h-7 text-xs">
+                            Completed Today
+                          </Button>
+                          <span className="text-[10px] text-muted-foreground border rounded px-1.5 py-0.5">
+                            Cooldown: Resets Tomorrow
+                          </span>
+                        </div>
+                      ) : (
+                        <Link href={`/quiz?topic=${attempt.problem_slug}`}>
+                          <Button size="sm" className="h-7 text-xs">Play Quiz</Button>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 ))
