@@ -7,6 +7,7 @@ import { ArrowLeft, Flame, BrainCircuit, Trophy, CheckCircle2 } from "lucide-rea
 import { ThemeInput } from "react-activity-calendar";
 import { format, subDays, formatDistanceToNow } from "date-fns";
 import { ActivityGraphClient } from "./ActivityGraphClient";
+import { AnalyticsChart } from "@/components/analytics-chart";
 import { EditProfileModal } from "@/components/edit-profile-modal";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
@@ -42,21 +43,58 @@ export default async function DashboardPage() {
 
   const totalQuizzes = quizAttempts?.length || 0;
 
-  // 4. Process Data for Activity Calendar
-  const activityMap: Record<string, number> = {};
-  
-  // Initialize last 365 days with 0 so the calendar spans a full year
+  // 4. Process Data for Analytics Chart (Cumulative XP over last 30 days)
   const today = new Date();
+  
+  // Sort attempts chronologically
+  const chronologicalAttempts = quizAttempts ? [...quizAttempts].sort((a, b) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime()) : [];
+
+  let runningTotal = 0;
+  const runningTotalByDate: Record<string, number> = {}; 
+
+  chronologicalAttempts.forEach(attempt => {
+    const xpEarned = attempt.score * 10;
+    runningTotal += xpEarned;
+    const dateStr = attempt.completed_at.substring(0, 10); // 'yyyy-MM-dd'
+    runningTotalByDate[dateStr] = runningTotal;
+  });
+
+  let currentRunningTotal = 0;
+  const thirtyDaysAgoStr = format(subDays(today, 29), 'yyyy-MM-dd');
+  
+  // Get baseline XP before the 30-day window
+  Object.keys(runningTotalByDate).sort().forEach(dateStr => {
+    if (dateStr < thirtyDaysAgoStr) {
+      currentRunningTotal = runningTotalByDate[dateStr];
+    }
+  });
+
+  const chartData = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = subDays(today, i);
+    const dateKey = format(d, 'yyyy-MM-dd');
+    const displayDate = format(d, 'MMM dd');
+    
+    if (runningTotalByDate[dateKey] !== undefined) {
+      currentRunningTotal = runningTotalByDate[dateKey];
+    }
+    
+    chartData.push({
+      date: displayDate,
+      totalXp: currentRunningTotal
+    });
+  }
+
+  // 5. Process Data for Activity Calendar
+  const activityMap: Record<string, number> = {};
   for (let i = 0; i < 365; i++) {
     const d = subDays(today, i);
     activityMap[format(d, 'yyyy-MM-dd')] = 0;
   }
 
-  // Aggregate quiz attempts by day
   if (quizAttempts) {
     quizAttempts.forEach((attempt) => {
-      // attempt.completed_at is ISO timestamp like '2026-06-11T12:00:00Z'
-      const dateStr = attempt.completed_at.substring(0, 10); // 'yyyy-MM-dd'
+      const dateStr = attempt.completed_at.substring(0, 10);
       if (activityMap[dateStr] !== undefined) {
         activityMap[dateStr] += 1;
       } else {
@@ -65,27 +103,17 @@ export default async function DashboardPage() {
     });
   }
 
-  // Format into the array expected by react-activity-calendar
-  // Required format: Array<{ date: string, count: number, level: 0|1|2|3|4 }>
   const calendarData = Object.entries(activityMap)
     .map(([date, count]) => {
-      // Calculate level (0-4) based on activity
       let level = 0;
       if (count === 1) level = 1;
       else if (count >= 2 && count <= 3) level = 2;
       else if (count >= 4 && count <= 6) level = 3;
       else if (count > 6) level = 4;
-
-      return {
-        date,
-        count,
-        level: level as 0 | 1 | 2 | 3 | 4
-      };
+      return { date, count, level: level as 0 | 1 | 2 | 3 | 4 };
     })
-    // Calendar expects data to be sorted chronologically
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  // Define our custom golden theme for the calendar
   const explicitTheme: ThemeInput = {
     light: ['#f0f0f0', '#fceeb5', '#f3d371', '#e4b335', '#b2800d'],
     dark:  ['#222222', '#524317', '#8a7122', '#ceaa3b', '#fbcc45'],
@@ -181,7 +209,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Activity Calendar */}
-        <Card className="w-full bg-card/40 backdrop-blur-md border-border/50 shadow-sm mb-12 overflow-hidden">
+        <Card className="w-full bg-card/40 backdrop-blur-md border-border/50 shadow-sm mb-6 overflow-hidden">
           <CardHeader>
             <CardTitle>Activity Graph</CardTitle>
             <CardDescription>Your quiz completions over the last year</CardDescription>
@@ -195,6 +223,11 @@ export default async function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Activity Chart */}
+        <div className="w-full mb-12">
+          <AnalyticsChart data={chartData} />
+        </div>
 
         {/* Recent Submissions */}
         <Card className="w-full bg-card/40 backdrop-blur-md border-border/50 shadow-sm mb-12 overflow-hidden">
