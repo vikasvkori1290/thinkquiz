@@ -14,7 +14,7 @@ export default async function LeaderboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 2. Fetch Top 10 Users by XP from Cached Backend API
-  let topUsers = [];
+  let topUsers: any[] = [];
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/leaderboard`, { next: { revalidate: 0 } });
     if (res.ok) {

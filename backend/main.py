@@ -6,9 +6,12 @@ from services.user import get_user_stats
 
 app = FastAPI(title="ThinkQuiz Backend")
 
-# Configure CORS
+import os
+
+# Configure CORS using environment variable or wildcard for production flexibility
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 origins = [
-    "http://localhost:3000",
+    frontend_url,
 ]
 
 app.add_middleware(
@@ -65,16 +68,19 @@ async def get_leaderboard():
         print(f"Redis get error: {e}")
         
     # 2. Cache miss -> query Supabase
-    res = supabase.table('user_stats').select('user_id, current_xp, level, username, first_name').order('current_xp', desc=True).limit(10).execute()
-    data = res.data
-    
-    # 3. Store in Redis (TTL = 300s)
     try:
-        await redis.set("cache:leaderboard", json.dumps(data), ex=300)
-    except Exception as e:
-        print(f"Redis set error: {e}")
+        res = supabase.table('user_stats').select('user_id, current_xp, level, username, first_name').order('current_xp', desc=True).limit(10).execute()
+        data = res.data
         
-    return data
+        # 3. Store in Redis (TTL = 300s)
+        try:
+            await redis.set("cache:leaderboard", json.dumps(data), ex=300)
+        except Exception as e:
+            print(f"Redis set error: {e}")
+            
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 from pydantic import BaseModel
 from typing import Optional

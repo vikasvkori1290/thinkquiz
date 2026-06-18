@@ -196,18 +196,22 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
         if (score === 2) qualityScore = 3;
         if (score === 3) qualityScore = 5;
 
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/srs/update`, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${session?.access_token}`
-          },
-          body: JSON.stringify({
-            user_id: user.id,
-            question_id: quizData.id_or_concept,
-            quality_score: qualityScore
-          })
-        }).catch(err => console.error("SRS Update failed:", err));
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/srs/update`, {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({
+              user_id: user.id,
+              question_id: quizData.id_or_concept,
+              quality_score: qualityScore
+            })
+          });
+        } catch (err) {
+          console.error("SRS Update failed:", err);
+        }
         // -----------------------------
         
         // Optimistic UI Update: the server returns the updated XP, streak, etc.

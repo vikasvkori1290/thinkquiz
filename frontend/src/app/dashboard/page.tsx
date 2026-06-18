@@ -256,7 +256,7 @@ export default async function DashboardPage() {
                     </p>
                   </div>
                 </div>
-                <Link href={`/quiz?topic=${dueReviews[0].question_id}`}>
+                <Link href={`/quiz?topic=${dueReviews?.[0]?.question_id || ''}`}>
                   <Button size="lg" className="w-full sm:w-auto font-semibold">Start Review</Button>
                 </Link>
               </CardContent>
