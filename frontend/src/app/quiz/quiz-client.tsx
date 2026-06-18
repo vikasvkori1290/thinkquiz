@@ -184,6 +184,27 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
           throw new Error(data.detail || "Failed to submit quiz to server");
         }
         
+        // --- SRS Background Update ---
+        // Map 0-3 score to SM-2's 0-5 quality scale
+        let qualityScore = 1;
+        if (score === 1) qualityScore = 2;
+        if (score === 2) qualityScore = 3;
+        if (score === 3) qualityScore = 5;
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/srs/update`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            question_id: quizData.id_or_concept,
+            quality_score: qualityScore
+          })
+        }).catch(err => console.error("SRS Update failed:", err));
+        // -----------------------------
+        
         // Optimistic UI Update: the server returns the updated XP, streak, etc.
         setGamificationResult({
           new_xp: data.new_xp,

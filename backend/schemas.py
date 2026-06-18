@@ -26,3 +26,8 @@ class GamificationUpdate(BaseModel):
     new_level: int
     streak: int
     leveled_up: bool
+
+class SRSUpdate(BaseModel):
+    user_id: str
+    question_id: str
+    quality_score: int

@@ -121,3 +121,14 @@ async def submit_quiz(submission: QuizSubmission, token: str = Depends(get_token
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+from schemas import SRSUpdate
+from services.srs import process_srs_update
+
+@app.post("/api/srs/update")
+async def update_srs(update: SRSUpdate, token: str = Depends(get_token)):
+    try:
+        result = await process_srs_update(update, token)
+        return {"status": "success", "data": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

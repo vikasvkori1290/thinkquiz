@@ -43,9 +43,19 @@ export default async function DashboardPage() {
     .order('completed_at', { ascending: false });
 
   const totalQuizzes = quizAttempts?.length || 0;
+  
+  const today = new Date();
+
+  // 3.5 Fetch Due SRS Reviews
+  const { data: dueReviews } = await supabase
+    .from('spaced_repetition_queue')
+    .select('question_id')
+    .eq('user_id', user.id)
+    .lte('next_review_date', today.toISOString());
+    
+  const dueCount = dueReviews?.length || 0;
 
   // 4. Process Data for Analytics Chart (Cumulative XP over last 30 days)
-  const today = new Date();
   
   // Sort attempts chronologically
   const chronologicalAttempts = quizAttempts ? [...quizAttempts].sort((a, b) => new Date(a.completed_at).getTime() - new Date(b.completed_at).getTime()) : [];
@@ -229,6 +239,30 @@ export default async function DashboardPage() {
         <div className="w-full mb-12">
           <AnalyticsChart data={chartData} />
         </div>
+
+        {/* Daily Reviews (SRS) */}
+        {dueCount > 0 && (
+          <div className="w-full mb-8 animate-in fade-in slide-in-from-bottom-4">
+            <Card className="bg-primary/10 border-primary/30 shadow-md">
+              <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                    <BrainCircuit className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground">Daily Reviews</h2>
+                    <p className="text-muted-foreground mt-1">
+                      You have <strong className="text-primary">{dueCount}</strong> {dueCount === 1 ? 'topic' : 'topics'} ready for review to prevent memory decay!
+                    </p>
+                  </div>
+                </div>
+                <Link href={`/quiz?topic=${dueReviews[0].question_id}`}>
+                  <Button size="lg" className="w-full sm:w-auto font-semibold">Start Review</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Recent Submissions */}
         <Card className="w-full bg-card/40 backdrop-blur-md border-border/50 shadow-sm mb-12 overflow-hidden">
