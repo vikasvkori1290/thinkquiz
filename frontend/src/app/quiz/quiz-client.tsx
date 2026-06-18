@@ -15,6 +15,7 @@ import confetti from "canvas-confetti";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserStats {
   current_xp: number;
@@ -29,6 +30,7 @@ interface QuizClientProps {
 }
 
 export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: QuizClientProps) {
+  const { toast } = useToast();
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchMode, setSearchMode] = useState<"leetcode" | "concept">("leetcode");
@@ -87,6 +89,15 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
       const data = await res.json();
       
       if (!res.ok) {
+        if (res.status === 429) {
+          toast({
+            variant: "destructive",
+            title: "AI Capacity Reached",
+            description: data.detail || "The AI brain is currently overwhelmed by too many users. Please try again in 30 seconds."
+          });
+          setIsSearching(false);
+          return;
+        }
         throw new Error(data.detail || "Failed to generate quiz");
       }
 

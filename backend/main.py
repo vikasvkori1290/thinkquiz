@@ -1,3 +1,4 @@
+import datetime
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from services.leetcode import fetch_leetcode_problem
@@ -20,7 +21,10 @@ app.add_middleware(
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "ok"}
+    return {
+        "status": "awake",
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }
 
 @app.get("/api/leetcode/{title_slug}")
 async def get_leetcode_problem(title_slug: str):
@@ -96,6 +100,9 @@ async def generate_quiz(req: GenerateRequest):
         
         return quiz_json
     except Exception as e:
+        from google.api_core.exceptions import ResourceExhausted
+        if isinstance(e, ResourceExhausted) or "429" in str(e):
+            raise HTTPException(status_code=429, detail="The AI brain is currently overwhelmed by too many users. Please try again in 30 seconds.")
         raise HTTPException(status_code=500, detail=str(e))
 
 from fastapi import Header
