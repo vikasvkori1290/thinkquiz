@@ -13,12 +13,16 @@ export default async function LeaderboardPage() {
   // 1. Fetch user (just for top navbar avatar, optional for leaderboard but good for consistent navbar)
   const { data: { user } } = await supabase.auth.getUser();
 
-  // 2. Fetch Top 10 Users by XP
-  const { data: topUsers } = await supabase
-    .from('user_stats')
-    .select('user_id, current_xp, level, username, first_name')
-    .order('current_xp', { ascending: false })
-    .limit(10);
+  // 2. Fetch Top 10 Users by XP from Cached Backend API
+  let topUsers = [];
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/leaderboard`, { next: { revalidate: 0 } });
+    if (res.ok) {
+      topUsers = await res.json();
+    }
+  } catch (err) {
+    console.error("Failed to fetch leaderboard from cache API:", err);
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

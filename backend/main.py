@@ -48,6 +48,34 @@ async def get_user_stats_route(user_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/leaderboard")
+async def get_leaderboard():
+    from services.cache import redis
+    from database import supabase
+    import json
+    
+    # 1. Check Redis cache
+    try:
+        cached = await redis.get("cache:leaderboard")
+        if cached:
+            if isinstance(cached, str):
+                return json.loads(cached)
+            return cached
+    except Exception as e:
+        print(f"Redis get error: {e}")
+        
+    # 2. Cache miss -> query Supabase
+    res = supabase.table('user_stats').select('user_id, current_xp, level, username, first_name').order('current_xp', desc=True).limit(10).execute()
+    data = res.data
+    
+    # 3. Store in Redis (TTL = 300s)
+    try:
+        await redis.set("cache:leaderboard", json.dumps(data), ex=300)
+    except Exception as e:
+        print(f"Redis set error: {e}")
+        
+    return data
+
 from pydantic import BaseModel
 from typing import Optional
 from services.ai import generate_socratic_quiz
@@ -57,8 +85,40 @@ class GenerateRequest(BaseModel):
     leetcode_slug: Optional[str] = None
     concept_topic: Optional[str] = None
 
+from fastapi import Header
+
+async def get_token(authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    return authorization.split(" ")[1]
+
+async def check_rate_limit(token: str = Depends(get_token)):
+    if not token:
+        raise HTTPException(status_code=401, detail="Authentication required to generate quizzes.")
+        
+    import hashlib
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    
+    import time
+    from services.cache import redis
+    
+    current_minute = int(time.time() // 60)
+    key = f"rate_limit:{token_hash}:{current_minute}"
+    
+    try:
+        count = await redis.incr(key)
+        if count == 1:
+            await redis.expire(key, 60)
+            
+        if count > 5:
+            raise HTTPException(status_code=429, detail="Rate limit exceeded. Please wait a minute before generating another quiz.")
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Redis rate limit error: {e}")
+
 @app.post("/api/generate")
-async def generate_quiz(req: GenerateRequest):
+async def generate_quiz(req: GenerateRequest, rate_limit: None = Depends(check_rate_limit)):
     if not req.leetcode_slug and not req.concept_topic:
         raise HTTPException(status_code=400, detail="Must provide either leetcode_slug or concept_topic")
     
@@ -105,14 +165,8 @@ async def generate_quiz(req: GenerateRequest):
             raise HTTPException(status_code=429, detail="The AI brain is currently overwhelmed by too many users. Please try again in 30 seconds.")
         raise HTTPException(status_code=500, detail=str(e))
 
-from fastapi import Header
 from schemas import QuizSubmission, GamificationUpdate
 from services.gamification import process_quiz_submission
-
-async def get_token(authorization: str = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        return None
-    return authorization.split(" ")[1]
 
 @app.post("/api/quiz/submit", response_model=GamificationUpdate)
 async def submit_quiz(submission: QuizSubmission, token: str = Depends(get_token)):

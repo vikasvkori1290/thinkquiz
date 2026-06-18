@@ -70,6 +70,13 @@ async def process_quiz_submission(submission: QuizSubmission, token: str = None)
         "last_active_date": today.isoformat()
     }).execute()
 
+    # Cache Invalidation: Delete leaderboard from Redis to force a fresh fetch
+    try:
+        from services.cache import redis
+        await redis.delete("cache:leaderboard")
+    except Exception as e:
+        print(f"Redis delete error: {e}")
+
     return GamificationUpdate(
         new_xp=new_xp,
         new_level=new_level,

@@ -80,9 +80,14 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
         ? { leetcode_slug: formattedSlug, concept_topic: null }
         : { leetcode_slug: null, concept_topic: searchQuery };
 
+      const { data: { session } } = await supabase.auth.getSession();
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/generate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.access_token}`
+        },
         body: JSON.stringify(payload)
       });
       
