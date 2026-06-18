@@ -281,7 +281,6 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
                 <Search className="h-5 w-5" />
               )}
             </Button>
-            </Button>
           </div>
 
           {/* Inline Error Message */}
