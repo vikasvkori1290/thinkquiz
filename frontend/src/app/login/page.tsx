@@ -12,10 +12,10 @@ import { Loader2, BrainCircuit } from "lucide-react";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
-  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const [isSignUpMode, setIsSignUpMode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -32,25 +32,39 @@ export default function LoginPage() {
 
   const handleSignUp = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
+    });
+    
     if (error) {
       alert(error.message);
       setLoading(false);
     } else {
-      setShowOtpInput(true);
+      setShowVerificationMessage(true);
       setLoading(false);
     }
   };
 
-  const handleVerifyOtp = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({ email, token: otp, type: 'signup' });
+  const handleResendLink = async () => {
+    setResendLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
+    });
+
     if (error) {
       alert(error.message);
-      setLoading(false);
     } else {
-      router.push("/dashboard");
+      alert("Verification link resent! Please check your inbox and spam folder.");
     }
+    setResendLoading(false);
   };
 
   const toggleMode = () => {
@@ -69,22 +83,22 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight">
-            {showOtpInput 
-              ? "Verify your email" 
+            {showVerificationMessage 
+              ? "Check your email" 
               : isSignUpMode 
                 ? "Create an Account" 
                 : "Welcome back"}
           </CardTitle>
           <p className="text-muted-foreground mt-2">
-            {showOtpInput 
-              ? `We sent a 6-digit code to ${email}`
+            {showVerificationMessage 
+              ? `We sent a verification link to ${email}`
               : isSignUpMode
                 ? "Enter your email below to create your account"
                 : "Sign in to your ThinkQuiz account"}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!showOtpInput ? (
+          {!showVerificationMessage ? (
             <>
               <div className="space-y-2">
                 <Input 
@@ -113,20 +127,18 @@ export default function LoginPage() {
               </div>
             </>
           ) : (
-            <div className="space-y-2">
-              <Input 
-                type="text" 
-                placeholder="6-digit code" 
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="h-12 text-center text-lg tracking-widest"
-                maxLength={6}
-              />
+            <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 text-center space-y-3">
+              <p className="text-foreground font-medium">
+                Verify your account by clicking the link sent to your email.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                You can close this window. Once verified, simply sign in!
+              </p>
             </div>
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-3 pt-4">
-          {!showOtpInput ? (
+          {!showVerificationMessage ? (
             <>
               {isSignUpMode ? (
                 <Button 
@@ -148,28 +160,46 @@ export default function LoginPage() {
                 </Button>
               )}
               
-              <div className="mt-4 text-center text-sm">
-                <span className="text-muted-foreground">
-                  {isSignUpMode ? "Already have an account? " : "Don't have an account? "}
-                </span>
-                <button 
-                  onClick={toggleMode}
-                  className="text-primary font-semibold hover:underline bg-transparent border-none cursor-pointer"
-                  disabled={loading}
-                >
-                  {isSignUpMode ? "Sign in" : "Sign up"}
-                </button>
+              <div className="relative my-2 w-full">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">Or</span>
+                </div>
               </div>
+
+              <Button 
+                variant="outline" 
+                className="w-full h-12 border-border"
+                onClick={toggleMode}
+                disabled={loading}
+              >
+                {isSignUpMode ? "Already have an account? Sign in" : "Need an account? Sign up"}
+              </Button>
             </>
           ) : (
-            <Button 
-              className="w-full h-12 text-base font-semibold" 
-              onClick={handleVerifyOtp}
-              disabled={loading || otp.length < 6}
-            >
-              {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-              Verify Code
-            </Button>
+            <>
+              <Button 
+                variant="default" 
+                className="w-full h-12 font-semibold"
+                onClick={handleResendLink}
+                disabled={resendLoading}
+              >
+                {resendLoading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                Resend Verification Link
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full h-12 font-semibold border-border mt-2"
+                onClick={() => {
+                  setShowVerificationMessage(false);
+                  setIsSignUpMode(false);
+                }}
+              >
+                Return to Sign In
+              </Button>
+            </>
           )}
         </CardFooter>
       </Card>
