@@ -12,6 +12,7 @@ import os
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 origins = [
     frontend_url,
+    "https://thinkquiz.vercel.app"
 ]
 
 app.add_middleware(
@@ -116,7 +117,7 @@ async def check_rate_limit(token: str = Depends(get_token)):
         if count == 1:
             await redis.expire(key, 60)
             
-        if count > 5:
+        if count > 20:
             raise HTTPException(status_code=429, detail="Rate limit exceeded. Please wait a minute before generating another quiz.")
     except HTTPException:
         raise
