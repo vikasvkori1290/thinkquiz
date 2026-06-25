@@ -14,7 +14,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const [isSignUpMode, setIsSignUpMode] = useState(false);
+  const [isOtpMode, setIsOtpMode] = useState(false);
+  const [otpToken, setOtpToken] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [authError, setAuthError] = useState("");
   const router = useRouter();
@@ -35,7 +38,7 @@ export default function LoginPage() {
   const handleSignUp = async () => {
     setLoading(true);
     setAuthError("");
-    const { error } = await supabase.auth.signUp({ 
+    const { data, error } = await supabase.auth.signUp({ 
       email, 
       password,
       options: {
@@ -46,9 +49,28 @@ export default function LoginPage() {
     if (error) {
       setAuthError(error.message);
       setLoading(false);
+    } else if (data.session) {
+      router.push("/dashboard");
     } else {
-      setShowVerificationMessage(true);
+      setIsOtpMode(true);
       setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setVerifyLoading(true);
+    setAuthError("");
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token: otpToken,
+      type: 'signup'
+    });
+
+    if (error) {
+      setAuthError(error.message);
+      setVerifyLoading(false);
+    } else {
+      router.push("/dashboard");
     }
   };
 
@@ -73,8 +95,10 @@ export default function LoginPage() {
 
   const toggleMode = () => {
     setIsSignUpMode(!isSignUpMode);
+    setIsOtpMode(false);
     setEmail("");
     setPassword("");
+    setOtpToken("");
     setAuthError("");
   };
 
@@ -92,22 +116,22 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight">
-            {showVerificationMessage 
+            {isOtpMode 
               ? "Check your email" 
               : isSignUpMode 
                 ? "Create an Account" 
                 : "Welcome back"}
           </CardTitle>
           <p className="text-muted-foreground mt-2">
-            {showVerificationMessage 
-              ? `We sent a verification link to ${email}`
+            {isOtpMode 
+              ? `We sent a 6-digit code to ${email}`
               : isSignUpMode
                 ? "Enter your email below to create your account"
                 : "Sign in to your ThinkQuiz account"}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!showVerificationMessage ? (
+          {!isOtpMode ? (
             <>
               <div className="space-y-2">
                 <Input 
@@ -116,6 +140,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-12"
+                  disabled={loading}
                 />
               </div>
               <div className="space-y-2">
@@ -125,6 +150,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12"
+                  disabled={loading}
                 />
                 {!isSignUpMode && (
                   <div className="flex justify-end">
@@ -136,18 +162,26 @@ export default function LoginPage() {
               </div>
             </>
           ) : (
-            <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 text-center space-y-3">
-              <p className="text-foreground font-medium">
-                Verify your account by clicking the link sent to your email.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                You can close this window. Once verified, simply sign in!
-              </p>
+            <div className="space-y-4">
+              <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 text-center space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Please enter the 6-digit verification code sent to your email to complete your registration.
+                </p>
+              </div>
+              <Input 
+                type="text" 
+                placeholder="6-digit OTP Code" 
+                value={otpToken}
+                onChange={(e) => setOtpToken(e.target.value)}
+                className="h-12 text-center text-xl tracking-widest"
+                maxLength={6}
+                disabled={verifyLoading}
+              />
             </div>
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-3 pt-4">
-          {!showVerificationMessage ? (
+          {!isOtpMode ? (
             <>
               {isSignUpMode ? (
                 <Button 
@@ -198,19 +232,33 @@ export default function LoginPage() {
               <Button 
                 variant="default" 
                 className="w-full h-12 font-semibold"
+                onClick={handleVerifyOtp}
+                disabled={verifyLoading || otpToken.length < 6}
+              >
+                {verifyLoading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                Verify Code
+              </Button>
+              
+              {authError && (
+                <div className="text-sm font-medium text-destructive text-center mt-2">
+                  {authError}
+                </div>
+              )}
+
+              <Button 
+                variant="secondary" 
+                className="w-full h-12 font-semibold mt-2"
                 onClick={handleResendLink}
                 disabled={resendLoading}
               >
                 {resendLoading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                Resend Verification Link
+                Resend Code
               </Button>
               <Button 
                 variant="outline" 
                 className="w-full h-12 font-semibold border-border mt-2"
-                onClick={() => {
-                  setShowVerificationMessage(false);
-                  setIsSignUpMode(false);
-                }}
+                onClick={() => setIsOtpMode(false)}
+                disabled={verifyLoading}
               >
                 Return to Sign In
               </Button>
