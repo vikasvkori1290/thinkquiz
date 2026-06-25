@@ -183,6 +183,7 @@ async def submit_quiz(submission: QuizSubmission, token: str = Depends(get_token
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 from schemas import SRSUpdate
 from services.srs import process_srs_update
 
@@ -193,3 +194,34 @@ async def update_srs(update: SRSUpdate, token: str = Depends(get_token)):
         return {"status": "success", "data": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/user")
+def delete_user(token: str = Depends(get_token)):
+    from database import supabase, supabase_admin
+    try:
+        print(f"Token received, fetching user...")
+        user_response = supabase.auth.get_user(token)
+        print(f"User response: {user_response}")
+        if not user_response.user:
+            raise HTTPException(status_code=401, detail="Invalid token")
+            
+        user_id = user_response.user.id
+        
+        try:
+            print(f"Attempting to delete user {user_id} via admin API...")
+            if not supabase_admin:
+                raise Exception("Missing SUPABASE_SERVICE_ROLE_KEY in backend environment.")
+            # Attempt to use the admin API. 
+            supabase_admin.auth.admin.delete_user(user_id)
+            print("Successfully deleted user via admin API!")
+        except Exception as admin_err:
+            print(f"Failed to delete user via admin API: {admin_err}")
+            raise HTTPException(status_code=403, detail="Server must be configured with a service_role key to delete accounts.")
+            
+        return {"status": "success", "message": "User deleted successfully."}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Trigger reload

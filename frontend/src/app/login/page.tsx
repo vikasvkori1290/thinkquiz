@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, BrainCircuit } from "lucide-react";
+import { Loader2, BrainCircuit, Home } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,14 +16,16 @@ export default function LoginPage() {
   const [isSignUpMode, setIsSignUpMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
   const router = useRouter();
   const supabase = createClient();
 
   const handleSignIn = async () => {
     setLoading(true);
+    setAuthError("");
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      alert(error.message);
+      setAuthError(error.message);
       setLoading(false);
     } else {
       router.push("/dashboard");
@@ -32,6 +34,7 @@ export default function LoginPage() {
 
   const handleSignUp = async () => {
     setLoading(true);
+    setAuthError("");
     const { error } = await supabase.auth.signUp({ 
       email, 
       password,
@@ -41,7 +44,7 @@ export default function LoginPage() {
     });
     
     if (error) {
-      alert(error.message);
+      setAuthError(error.message);
       setLoading(false);
     } else {
       setShowVerificationMessage(true);
@@ -51,6 +54,7 @@ export default function LoginPage() {
 
   const handleResendLink = async () => {
     setResendLoading(true);
+    setAuthError("");
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
@@ -60,7 +64,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      alert(error.message);
+      setAuthError(error.message);
     } else {
       alert("Verification link resent! Please check your inbox and spam folder.");
     }
@@ -71,10 +75,15 @@ export default function LoginPage() {
     setIsSignUpMode(!isSignUpMode);
     setEmail("");
     setPassword("");
+    setAuthError("");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      <Link href="/" className="absolute top-6 left-6 flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors bg-background/50 backdrop-blur-sm p-2 rounded-md">
+        <Home className="mr-2 h-4 w-4" />
+        Back to Home
+      </Link>
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader className="text-center pb-8">
           <div className="flex justify-center mb-4">
@@ -158,6 +167,12 @@ export default function LoginPage() {
                   {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
                   Sign In
                 </Button>
+              )}
+              
+              {authError && (
+                <div className="text-sm font-medium text-destructive text-center mt-2">
+                  {authError}
+                </div>
               )}
               
               <div className="relative my-2 w-full">

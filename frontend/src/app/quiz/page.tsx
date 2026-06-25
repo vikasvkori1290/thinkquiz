@@ -2,7 +2,8 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { QuizClient } from "./quiz-client";
 
-export default async function QuizPage({ searchParams }: { searchParams: { topic?: string } }) {
+export default async function QuizPage(props: { searchParams: Promise<{ topic?: string }> }) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient();
   
   // 1. Fetch authenticated user

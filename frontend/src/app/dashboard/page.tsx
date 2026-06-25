@@ -10,6 +10,7 @@ import { format, subDays, formatDistanceToNow } from "date-fns";
 import { ActivityGraphClient } from "./ActivityGraphClient";
 import { AnalyticsChart } from "@/components/analytics-chart";
 import { EditProfileModal } from "@/components/edit-profile-modal";
+import { AccountSettings } from "@/components/account-settings";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
 
@@ -174,11 +175,14 @@ export default async function DashboardPage() {
                   {userStats?.username ? `@${userStats.username} • ` : ''}Joined {new Date(user.created_at).toLocaleDateString()}
                 </p>
               </div>
-              <EditProfileModal 
-                userEmail={user.email || ""} 
-                userId={user.id} 
-                initialStats={userStats} 
-              />
+              <div className="flex gap-2">
+                <EditProfileModal 
+                  userEmail={user.email || ""} 
+                  userId={user.id} 
+                  initialStats={userStats} 
+                />
+                <AccountSettings userId={user.id} />
+              </div>
             </div>
           </div>
         </div>

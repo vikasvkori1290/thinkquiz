@@ -13,6 +13,12 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 # Global client for unauthenticated/generic requests
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# Admin client for bypassing RLS and managing users
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+supabase_admin: Client = None
+if SUPABASE_SERVICE_ROLE_KEY:
+    supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
 # Helper for authenticated requests that need to pass RLS
 def get_scoped_client(token: str = None) -> Client:
     if token:
