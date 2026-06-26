@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BrainCircuit, History, Calendar, Trophy, CheckCircle2, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { CommandMenu } from "@/components/command-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Navbar } from "@/components/navbar";
 
 export default async function HistoryPage() {
   const supabase = await createClient();
@@ -28,33 +27,9 @@ export default async function HistoryPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4 max-w-6xl mx-auto w-full">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <BrainCircuit className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl tracking-tight">ThinkQuiz</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
-              Dashboard
-            </Link>
-            <Link href="/quiz" className="hidden sm:flex items-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium transition-colors">
-              Play Quiz
-            </Link>
-            <CommandMenu />
-            <ThemeToggle />
-            <Link href="/dashboard" passHref>
-              <Avatar className="border-2 border-border h-9 w-9 cursor-pointer hover:border-primary transition-colors ml-2">
-                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                  {user.email?.substring(0, 2).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar user={user} />
 
-      <main className="flex-1 flex flex-col items-center p-4 pt-12 max-w-4xl mx-auto w-full">
+      <main className="flex-1 flex flex-col items-center p-4 md:px-6 pt-24 md:pt-32 max-w-4xl mx-auto w-full">
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/20">
             <History className="w-10 h-10 text-primary" />

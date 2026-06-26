@@ -14,6 +14,7 @@ import Link from "next/link";
 import confetti from "canvas-confetti";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CommandMenu } from "@/components/command-menu";
+import { Navbar } from "@/components/navbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 
@@ -235,16 +236,28 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4 max-w-6xl mx-auto w-full">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <BrainCircuit className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl tracking-tight">ThinkQuiz</span>
-          </Link>
+      <Navbar user={user}>
+        {gamificationResult && (
+          <>
+            <div className="flex-1 flex items-center gap-3">
+              <span className="text-sm font-semibold text-muted-foreground whitespace-nowrap">
+                XP: {gamificationResult.new_xp}
+              </span>
+              <Progress value={(gamificationResult.new_xp % 100)} className="h-2 w-full [&>div]:bg-accent" />
+            </div>
+            <div className="flex items-center gap-1.5 font-bold text-[hsl(var(--accent))] px-3 py-1 bg-accent/10 rounded-full">
+              <Flame className="h-4 w-4 fill-current" />
+              <span>{gamificationResult.streak}</span>
+            </div>
+          </>
+        )}
+      </Navbar>
 
-          {/* Center Section: Progress & Streak */}
-          <div className="hidden md:flex items-center gap-6 flex-1 justify-center max-w-md">
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col items-center p-4 md:px-6 pt-24 md:pt-32 max-w-4xl mx-auto w-full">
+        {/* Progress & Streak (Moved from Navbar for mobile responsiveness) */}
+        {gamificationResult && (
+          <div className="w-full flex md:hidden items-center gap-6 justify-center max-w-md mb-8">
             <div className="flex-1 flex items-center gap-3">
               <span className="text-sm font-semibold text-muted-foreground whitespace-nowrap">
                 XP: {gamificationResult.new_xp}
@@ -256,41 +269,8 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
               <span>{gamificationResult.streak}</span>
             </div>
           </div>
+        )}
 
-          {/* Right: Avatar */}
-          <div className="flex items-center gap-4">
-            <Link href="/history" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
-              History
-            </Link>
-            <Link href="/leaderboard" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
-              Leaderboard
-            </Link>
-            <Link href="/dashboard">
-              <Avatar className="border-2 border-border h-9 w-9 cursor-pointer hover:border-primary transition-colors">
-                <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                  {user?.email?.substring(0, 2).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-            </Link>
-            <CommandMenu />
-            <ThemeToggle />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={async () => {
-                await supabase.auth.signOut();
-                router.push("/login");
-              }}
-              title="Sign Out"
-            >
-              <LogOut className="h-5 w-5 text-muted-foreground" />
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center p-4 pt-12 max-w-4xl mx-auto w-full">
         {/* Search Arena */}
         <div className="w-full max-w-2xl flex flex-col items-center gap-6 mb-12">
           <Tabs defaultValue="leetcode" className="w-full max-w-sm mx-auto" onValueChange={(v) => setSearchMode(v as any)}>

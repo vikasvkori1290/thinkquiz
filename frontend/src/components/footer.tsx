@@ -9,9 +9,8 @@ export function Footer() {
           
           {/* Brand Column */}
           <div className="flex flex-col items-start col-span-1 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity">
-              <BrainCircuit className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl tracking-tight text-foreground">ThinkQuiz</span>
+            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity mb-4">
+              <BrainCircuit className="h-8 w-8 text-primary" />
             </Link>
             <p className="text-sm text-muted-foreground mb-6">
               Master System Design and LeetCode through AI-guided Socratic quizzes, not just code dumps.

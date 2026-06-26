@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BrainCircuit, Search, Trophy, ArrowRight } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
-import { LandingNavbar } from "@/components/landing-navbar";
+import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 
 export default async function Home() {
@@ -18,7 +18,7 @@ export default async function Home() {
       </div>
 
       {/* Top Navbar */}
-      <LandingNavbar user={user} />
+      <Navbar user={user} />
 
       {/* Hero Section */}
       <main className="flex-1 relative z-10 pt-16">
@@ -35,9 +35,9 @@ export default async function Home() {
           </div>
         </div>
 
-        <section className="container max-w-6xl mx-auto px-4 pt-4 pb-16 md:pt-12 md:pb-32 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <section className="container mx-auto px-4 md:px-8 pt-4 pb-16 md:pt-12 md:pb-32 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Left Column */}
-          <div className="flex flex-col items-start text-left z-10">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left z-10">
             {/* Highlight Badge */}
             <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary mb-6 backdrop-blur-sm">
               <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></span>
@@ -50,7 +50,7 @@ export default async function Home() {
             <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-lg">
               Master LeetCode and System Design through AI-guided Socratic quizzes, not just code dumps.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
               <Link href="/quiz" passHref>
                 <Button size="lg" className="text-lg px-8 py-6 h-auto font-semibold">
                   Start Learning for Free
@@ -82,7 +82,7 @@ export default async function Home() {
         {/* Stats Section */}
         <div className="border-y border-border/50 bg-muted/10 backdrop-blur-sm py-10 mb-16 relative z-10">
           <div className="container max-w-6xl mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
               <div className="flex flex-col">
                 <span className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tighter">10K+</span>
                 <span className="text-xs md:text-sm text-muted-foreground font-semibold uppercase tracking-wider mt-2">Active Developers</span>

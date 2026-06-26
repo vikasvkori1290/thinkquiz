@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BrainCircuit, Trophy, Medal, Star } from "lucide-react";
 import { CommandMenu } from "@/components/command-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Navbar } from "@/components/navbar";
 
 export default async function LeaderboardPage() {
   const supabase = await createClient();
@@ -27,46 +28,16 @@ export default async function LeaderboardPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4 max-w-6xl mx-auto w-full">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <BrainCircuit className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl tracking-tight">ThinkQuiz</span>
-          </Link>
-          
-          <div className="flex items-center gap-4">
-            <Link href="/history" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
-              History
-            </Link>
-            <Link href="/quiz" className="text-sm font-medium hover:text-primary transition-colors">
-              Play Quiz
-            </Link>
-            <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
-              Profile
-            </Link>
-            {user && (
-              <Link href="/dashboard" passHref>
-                <Avatar className="border-2 border-border h-9 w-9 cursor-pointer hover:border-primary transition-colors ml-2">
-                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
-                    {user.email?.substring(0, 2).toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar>
-              </Link>
-            )}
-            <CommandMenu />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Navbar user={user} />
 
-      <main className="flex-1 flex flex-col items-center p-4 pt-12 max-w-4xl mx-auto w-full">
+      <main className="flex-1 flex flex-col items-center p-4 md:px-6 pt-24 md:pt-32 max-w-4xl mx-auto w-full">
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-primary/20">
             <Trophy className="w-10 h-10 text-primary" />
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Global Leaderboard</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            The top 10 most dedicated scholars on ThinkQuiz. Compete in daily quizzes to earn XP, rank up, and cement your legacy.
+            The top 10 highest-ranked scholars of all time. Earn XP on every quiz, level up, and cement your legacy on the global leaderboard.
           </p>
         </div>
 
@@ -103,19 +74,23 @@ export default async function LeaderboardPage() {
                   Icon = Medal;
                 }
 
-                // Generate a consistent pseudo-username using the first 5 chars of UUID
-                const shortId = stat.user_id.substring(0, 5).toUpperCase();
-                
-                // Prioritize username, then first_name, then fallback to Scholar #ID
-                let displayName = `Scholar #${shortId}`;
-                let initials = shortId.substring(0, 2);
-                
-                if (stat.username) {
+                // Build display name: full name > @username > email prefix > "Scholar"
+                let displayName = "Scholar";
+                let initials = "S";
+
+                if (stat.first_name || stat.last_name) {
+                  const fullName = [stat.first_name, stat.last_name].filter(Boolean).join(" ");
+                  displayName = fullName;
+                  initials = [stat.first_name?.[0], stat.last_name?.[0]]
+                    .filter(Boolean)
+                    .join("")
+                    .toUpperCase() || "S";
+                } else if (stat.username) {
                   displayName = `@${stat.username}`;
                   initials = stat.username.substring(0, 2).toUpperCase();
-                } else if (stat.first_name) {
-                  displayName = stat.first_name;
-                  initials = stat.first_name.substring(0, 2).toUpperCase();
+                } else if (stat.email_prefix) {
+                  displayName = stat.email_prefix;
+                  initials = stat.email_prefix.substring(0, 2).toUpperCase();
                 }
 
                 return (

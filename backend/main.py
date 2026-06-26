@@ -55,7 +55,7 @@ async def get_user_stats_route(user_id: str):
 @app.get("/api/leaderboard")
 async def get_leaderboard():
     from services.cache import redis
-    from database import supabase
+    from database import supabase_admin, supabase
     import json
     
     # 1. Check Redis cache
@@ -68,12 +68,29 @@ async def get_leaderboard():
     except Exception as e:
         print(f"Redis get error: {e}")
         
-    # 2. Cache miss -> query Supabase
+    # 2. Cache miss -> query Supabase using admin client to bypass RLS
     try:
-        res = supabase.table('user_stats').select('user_id, current_xp, level, username, first_name').order('current_xp', desc=True).limit(10).execute()
+        db = supabase_admin or supabase  # fallback to regular if admin not configured
+        res = db.table('user_stats').select(
+            'user_id, current_xp, level, first_name, last_name, username, users!inner(id)'
+        ).order('current_xp', desc=True).limit(10).execute()
         data = res.data
-        
-        # 3. Store in Redis (TTL = 300s)
+
+        # 3. For users with no name/username, fetch email prefix from auth
+        if supabase_admin:
+            for entry in data:
+                has_name = entry.get('first_name') or entry.get('last_name') or entry.get('username')
+                if not has_name:
+                    try:
+                        auth_user = supabase_admin.auth.admin.get_user_by_id(entry['user_id'])
+                        email = auth_user.user.email if auth_user and auth_user.user else None
+                        if email:
+                            # Store just the part before @ as a display_name hint
+                            entry['email_prefix'] = email.split('@')[0]
+                    except Exception as e:
+                        print(f"Could not fetch auth email for {entry['user_id']}: {e}")
+
+        # 4. Store in Redis (TTL = 300s)
         try:
             await redis.set("cache:leaderboard", json.dumps(data), ex=300)
         except Exception as e:
@@ -82,6 +99,27 @@ async def get_leaderboard():
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@app.delete("/api/leaderboard/cache")
+async def flush_leaderboard_cache():
+    """Dev utility: flush the Redis leaderboard cache so next request re-queries Supabase."""
+    from services.cache import redis
+    try:
+        await redis.delete("cache:leaderboard")
+        return {"message": "Leaderboard cache cleared."}
+    except Exception as e:
+        return {"message": f"Redis not available, skipping: {e}"}
+
+@app.get("/api/debug/user-stats")
+async def debug_user_stats():
+    """Dev debug: raw dump of user_stats table using admin client."""
+    from database import supabase_admin, supabase
+    db = supabase_admin or supabase
+    try:
+        res = db.table('user_stats').select('*').limit(5).execute()
+        return {"count": len(res.data), "data": res.data}
+    except Exception as e:
+        return {"error": str(e)}
 
 from pydantic import BaseModel
 from typing import Optional
@@ -211,11 +249,25 @@ def delete_user(token: str = Depends(get_token)):
             print(f"Attempting to delete user {user_id} via admin API...")
             if not supabase_admin:
                 raise Exception("Missing SUPABASE_SERVICE_ROLE_KEY in backend environment.")
-            # Attempt to use the admin API. 
+            
+            # Step 1: Delete from public.users — cascades to user_stats and quiz_attempts via FK
+            supabase_admin.table('users').delete().eq('id', user_id).execute()
+            print(f"Deleted user {user_id} from public.users (cascades to user_stats & quiz_attempts)")
+
+            # Step 2: Delete from Supabase Auth
             supabase_admin.auth.admin.delete_user(user_id)
-            print("Successfully deleted user via admin API!")
+            print("Successfully deleted user from Supabase Auth!")
+
+            # Step 3: Flush leaderboard cache so deleted user disappears immediately
+            try:
+                from services.cache import redis
+                import asyncio
+                asyncio.get_event_loop().run_until_complete(redis.delete("cache:leaderboard"))
+            except Exception as cache_err:
+                print(f"Could not flush leaderboard cache: {cache_err}")
+
         except Exception as admin_err:
-            print(f"Failed to delete user via admin API: {admin_err}")
+            print(f"Failed to delete user: {admin_err}")
             raise HTTPException(status_code=403, detail="Server must be configured with a service_role key to delete accounts.")
             
         return {"status": "success", "message": "User deleted successfully."}

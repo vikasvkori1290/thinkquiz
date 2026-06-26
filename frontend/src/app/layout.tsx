@@ -42,7 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background text-foreground antialiased")}>
+      <body className={cn("min-h-screen bg-background text-foreground antialiased overflow-x-hidden")}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

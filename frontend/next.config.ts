@@ -9,6 +9,10 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   /* config options here */
   turbopack: {},
+  experimental: {
+    // @ts-expect-error - Next.js suggests this config at runtime but it's missing from TS types
+    allowedDevOrigins: ["10.108.105.5"],
+  },
 };
 
 export default withPWA(nextConfig);

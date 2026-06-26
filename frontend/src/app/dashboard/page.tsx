@@ -11,8 +11,7 @@ import { ActivityGraphClient } from "./ActivityGraphClient";
 import { AnalyticsChart } from "@/components/analytics-chart";
 import { EditProfileModal } from "@/components/edit-profile-modal";
 import { AccountSettings } from "@/components/account-settings";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { CommandMenu } from "@/components/command-menu";
+import { Navbar } from "@/components/navbar";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -134,29 +133,9 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4 max-w-6xl mx-auto w-full">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <BrainCircuit className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl tracking-tight">ThinkQuiz</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/history" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
-              History
-            </Link>
-            <Link href="/leaderboard" className="text-sm font-medium hover:text-primary transition-colors hidden sm:block">
-              Leaderboard
-            </Link>
-            <Link href="/quiz" className="hidden sm:flex items-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium transition-colors">
-              Play Quiz
-            </Link>
-            <CommandMenu />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Navbar user={user} />
 
-      <main className="flex-1 flex flex-col items-center p-4 pt-12 max-w-6xl mx-auto w-full">
+      <main className="flex-1 flex flex-col items-center p-4 pt-24 md:pt-32 max-w-6xl mx-auto w-full">
         
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center gap-6 w-full mb-12 relative">
