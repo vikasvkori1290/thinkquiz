@@ -70,26 +70,44 @@ async def get_leaderboard():
         
     # 2. Cache miss -> query Supabase using admin client to bypass RLS
     try:
-        db = supabase_admin or supabase  # fallback to regular if admin not configured
+        db = supabase_admin or supabase
         res = db.table('user_stats').select(
             'user_id, current_xp, level, first_name, last_name, username, users!inner(id)'
         ).order('current_xp', desc=True).limit(10).execute()
         data = res.data
 
-        # 3. For users with no name/username, fetch email prefix from auth
+        # 3. Validate each entry against Supabase Auth
+        #    Orphaned entries (deleted from auth but still in public.users) are cleaned up and excluded
         if supabase_admin:
+            clean_data = []
             for entry in data:
-                has_name = entry.get('first_name') or entry.get('last_name') or entry.get('username')
-                if not has_name:
-                    try:
-                        auth_user = supabase_admin.auth.admin.get_user_by_id(entry['user_id'])
-                        email = auth_user.user.email if auth_user and auth_user.user else None
-                        if email:
-                            # Store just the part before @ as a display_name hint
-                            entry['email_prefix'] = email.split('@')[0]
-                    except Exception as e:
-                        print(f"Could not fetch auth email for {entry['user_id']}: {e}")
-
+                try:
+                    auth_user = supabase_admin.auth.admin.get_user_by_id(entry['user_id'])
+                    if auth_user and auth_user.user:
+                        # User exists in auth — enrich with email prefix if no name set
+                        has_name = entry.get('first_name') or entry.get('last_name') or entry.get('username')
+                        if not has_name and auth_user.user.email:
+                            entry['email_prefix'] = auth_user.user.email.split('@')[0]
+                        clean_data.append(entry)
+                    else:
+                        # Auth user not found — orphaned record, clean it up
+                        print(f"Orphaned user detected: {entry['user_id']} — cleaning up...")
+                        supabase_admin.table('users').delete().eq('id', entry['user_id']).execute()
+                except Exception as e:
+                    err_str = str(e).lower()
+                    if 'not found' in err_str or '404' in err_str or 'user not found' in err_str:
+                        # Auth user deleted — clean up orphaned record
+                        print(f"Orphaned user detected: {entry['user_id']} — cleaning up...")
+                        try:
+                            supabase_admin.table('users').delete().eq('id', entry['user_id']).execute()
+                        except Exception as cleanup_err:
+                            print(f"Cleanup failed for {entry['user_id']}: {cleanup_err}")
+                    else:
+                        # Some other error — keep the entry, don't delete
+                        print(f"Auth check error for {entry['user_id']}: {e}")
+                        clean_data.append(entry)
+            data = clean_data
+        
         # 4. Store in Redis (TTL = 300s)
         try:
             await redis.set("cache:leaderboard", json.dumps(data), ex=300)
