@@ -12,6 +12,7 @@ import { AnalyticsChart } from "@/components/analytics-chart";
 import { EditProfileModal } from "@/components/edit-profile-modal";
 import { AccountSettings } from "@/components/account-settings";
 import { Navbar } from "@/components/navbar";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -160,6 +161,7 @@ export default async function DashboardPage() {
                   userId={user.id} 
                   initialStats={userStats} 
                 />
+                <ThemeToggle />
                 <AccountSettings userId={user.id} />
               </div>
             </div>

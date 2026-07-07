@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Flame, Loader2, Search, BrainCircuit, ArrowRight, LogOut } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
@@ -62,10 +63,7 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
   const router = useRouter();
   const supabase = createClient();
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    
-    setIsSearching(true);
+  const handleResetQuiz = () => {
     setQuizData(null);
     setCurrentQuestionIndex(0);
     setSelectedOption(null);
@@ -74,12 +72,19 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
     setXpEarned(0);
     setIsFinished(false);
     setSearchError(null);
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setIsSearching(true);
+    handleResetQuiz();
     
     try {
       const formattedSlug = searchQuery.trim().toLowerCase().replace(/\s+/g, '-');
       const payload = searchMode === "leetcode" 
         ? { leetcode_slug: formattedSlug, concept_topic: null }
-        : { leetcode_slug: null, concept_topic: searchQuery };
+        : { leetcode_slug: null, concept_topic: `Generate 5 technical interview-style multiple choice questions about: ${searchQuery}` };
 
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -276,19 +281,37 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
           <Tabs defaultValue="leetcode" className="w-full max-w-sm mx-auto" onValueChange={(v) => setSearchMode(v as any)}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="leetcode">LeetCode Mode</TabsTrigger>
-              <TabsTrigger value="concept">Concept Mode</TabsTrigger>
+              <TabsTrigger value="concept">Web Dev Mode</TabsTrigger>
             </TabsList>
           </Tabs>
 
           <div className="flex w-full items-center space-x-2">
-            <Input 
-              type="text" 
-              placeholder={searchMode === "leetcode" ? "e.g. two-sum" : "e.g. Dynamic Programming"} 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="h-12 text-lg shadow-sm"
-            />
+            {searchMode === "leetcode" ? (
+              <Input 
+                type="text" 
+                placeholder="e.g. two-sum" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="h-12 text-lg shadow-sm"
+              />
+            ) : (
+              <Select value={searchQuery} onValueChange={setSearchQuery}>
+                <SelectTrigger className="h-12 text-lg shadow-sm text-left">
+                  <SelectValue placeholder="Select a topic..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="HTML">HTML</SelectItem>
+                  <SelectItem value="CSS">CSS</SelectItem>
+                  <SelectItem value="JavaScript">JavaScript</SelectItem>
+                  <SelectItem value="React">React</SelectItem>
+                  <SelectItem value="Node.js">Node.js</SelectItem>
+                  <SelectItem value="Express">Express</SelectItem>
+                  <SelectItem value="MongoDB">MongoDB</SelectItem>
+                  <SelectItem value="SQL">SQL</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             <Button 
               type="submit" 
               size="lg" 
@@ -472,8 +495,16 @@ export function QuizClient({ user, initialStats, completedTodaySlugs = [] }: Qui
                       Solve on LeetCode
                     </Button>
                   )}
+                  <Button 
+                    size="lg" 
+                    variant={searchMode === "leetcode" ? "outline" : "default"} 
+                    className="h-12 px-8 font-semibold shadow-md w-full sm:w-auto"
+                    onClick={handleResetQuiz}
+                  >
+                    Back to Quiz
+                  </Button>
                   <Link href="/dashboard" passHref>
-                    <Button size="lg" variant={searchMode === "leetcode" ? "outline" : "default"} className="h-12 px-8 font-semibold shadow-md w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="h-12 px-8 font-semibold shadow-md w-full sm:w-auto">
                       Return to Dashboard
                     </Button>
                   </Link>

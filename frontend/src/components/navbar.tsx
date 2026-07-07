@@ -42,29 +42,27 @@ export function Navbar({ user, children }: NavbarProps) {
             <BrainCircuit className="h-8 w-8 text-primary" />
           </Link>
 
-          {/* Center Section (Injected via children) */}
-          {children && (
-            <div className="hidden md:flex items-center gap-6 flex-1 justify-center max-w-md">
-              {children}
-            </div>
-          )}
+          {/* Center Section */}
+          <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
+            <Link href="/history" passHref className="text-sm font-medium hover:text-primary transition-colors">
+              History
+            </Link>
+            <Link href="/quiz" passHref className="text-sm font-medium hover:text-primary transition-colors">
+              Quiz
+            </Link>
+            <Link href="/leaderboard" passHref className="text-sm font-medium hover:text-primary transition-colors">
+              Leaderboard
+            </Link>
+            <Link href="/aptitude" passHref className="text-sm font-medium hover:text-primary transition-colors">
+              Aptitude
+            </Link>
+            {children}
+          </div>
 
           {/* Right Section */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Desktop Links */}
-            <Link href="/history" passHref className="text-sm font-medium hover:text-primary transition-colors hidden md:block">
-              History
-            </Link>
-            <Link href="/quiz" passHref className="text-sm font-medium hover:text-primary transition-colors hidden md:block">
-              Quiz
-            </Link>
-            <Link href="/leaderboard" passHref className="text-sm font-medium hover:text-primary transition-colors hidden md:block">
-              Leaderboard
-            </Link>
-
             {/* Interactive Icons */}
             <CommandMenu />
-            <ThemeToggle />
             
             {user ? (
               <Link href="/dashboard" passHref>
@@ -106,6 +104,9 @@ export function Navbar({ user, children }: NavbarProps) {
                     </Link>
                     <Link href="/leaderboard" onClick={() => setIsOpen(false)} className="text-base font-medium hover:text-primary transition-colors">
                       Leaderboard
+                    </Link>
+                    <Link href="/aptitude" onClick={() => setIsOpen(false)} className="text-base font-medium hover:text-primary transition-colors">
+                      Aptitude
                     </Link>
                     {!user && (
                       <Link href="/login" onClick={() => setIsOpen(false)}>

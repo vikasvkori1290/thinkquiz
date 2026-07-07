@@ -14,8 +14,9 @@ client = AsyncOpenAI(
 )
 
 async def generate_socratic_quiz(problem_data: dict = None, topic: str = None) -> dict:
+    num_questions = 5 if topic else 3
     prompt = (
-        "You are a Socratic tutor. Create a 3-question multiple choice quiz. "
+        f"You are a Socratic tutor. Create a {num_questions}-question multiple choice quiz. "
         "You must write in clear, concise, natural English sentences. "
         "Do NOT generate lists of keywords, and strictly avoid token repetition loops.\n\n"
         "You MUST return the output ONLY as a raw JSON object exactly matching this structure (no markdown formatting):\n"
