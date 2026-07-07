@@ -22,6 +22,14 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState("");
   const router = useRouter();
   const supabase = createClient();
+  
+  const getNextPath = () => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('next') || "/dashboard";
+    }
+    return "/dashboard";
+  };
 
   const handleSignIn = async () => {
     setLoading(true);
@@ -31,7 +39,7 @@ export default function LoginPage() {
       setAuthError(error.message);
       setLoading(false);
     } else {
-      router.push("/dashboard");
+      router.push(getNextPath());
     }
   };
 
@@ -50,7 +58,7 @@ export default function LoginPage() {
       setAuthError(error.message);
       setLoading(false);
     } else if (data.session) {
-      router.push("/dashboard");
+      router.push(getNextPath());
     } else {
       setIsOtpMode(true);
       setLoading(false);
@@ -70,7 +78,7 @@ export default function LoginPage() {
       setAuthError(error.message);
       setVerifyLoading(false);
     } else {
-      router.push("/dashboard");
+      router.push(getNextPath());
     }
   };
 

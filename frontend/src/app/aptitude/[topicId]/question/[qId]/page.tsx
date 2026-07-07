@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, CheckCircle2, XCircle, BrainCircuit } from "lucide-react";
 import { topics } from "../../../data";
+import { createClient } from "@/utils/supabase/client";
 
 export default function QuestionPage() {
   const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const topicId = params.topicId as string;
   const qId = params.qId as string;
 
@@ -33,6 +36,15 @@ export default function QuestionPage() {
   // Interactive State
   const [selected, setSelected] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsAuthenticated(!!user);
+    });
+  }, []);
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-24 min-h-screen">
@@ -91,6 +103,11 @@ export default function QuestionPage() {
                   variant={selected !== null && (isCorrect || isSelected) ? "outline" : "secondary"}
                   className={btnClass}
                   onClick={() => { 
+                    if (!isAuthenticated) {
+                      router.push(`/login?next=${encodeURIComponent(pathname)}`);
+                      return;
+                    }
+
                     if (selected === null) {
                       setSelected(i);
                       if (isCorrect) {
