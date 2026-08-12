@@ -51,7 +51,7 @@ export default async function LeaderboardPage() {
           
           <div className="divide-y divide-border/50">
             {topUsers && topUsers.length > 0 ? (
-              topUsers.map((stat, index) => {
+              topUsers.map((stat: any, index: number) => {
                 const rank = index + 1;
                 const isTop3 = rank <= 3;
                 

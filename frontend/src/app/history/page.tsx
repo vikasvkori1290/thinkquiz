@@ -42,7 +42,7 @@ export default async function HistoryPage() {
 
         {attempts && attempts.length > 0 ? (
           <div className="w-full space-y-4">
-            {attempts.map((attempt) => {
+            {attempts.map((attempt: any) => {
               const isPerfect = attempt.score === 3;
               const isGood = attempt.score === 2;
               
