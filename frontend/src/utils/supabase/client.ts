@@ -47,6 +47,12 @@ export function createClient() {
         }
         return { error: null };
       },
+      async resetPasswordForEmail(email: string, options?: any) {
+        return { data: {}, error: null };
+      },
+      async updateUser(attributes: any) {
+        return { data: {}, error: null };
+      },
     },
     from(table: string) {
       const makeQuery = (val: any) => {

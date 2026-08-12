@@ -44,6 +44,12 @@ export async function createClient() {
         const { data } = await this.getUser();
         return { data: { session: data.user ? { user: data.user } : null } };
       },
+      async resetPasswordForEmail(email: string, options?: any) {
+        return { data: {}, error: null };
+      },
+      async updateUser(attributes: any) {
+        return { data: {}, error: null };
+      },
     },
     from(table: string) {
       const makeQuery = (val: any) => {
