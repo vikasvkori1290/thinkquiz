@@ -45,8 +45,8 @@ ThinkQuiz is an AI-powered, gamified technical interview preparation platform de
 
 ## 🏗️ Tech Stack
 
-* **Frontend:** Next.js (App Router, React 18, TypeScript), Tailwind CSS, Shadcn UI components.
-* **Backend:** Node.js, Express.js (Model-Controller architecture), Mongoose.
+* **Frontend:** React (Vite, JavaScript/TypeScript), Tailwind CSS, Lucide Icons, Glassmorphism UI.
+* **Backend:** Node.js, Express.js (REST API, Controller-Service architecture), Mongoose.
 * **Database:** MongoDB Atlas (Cloud Database).
-* **Cache & Rate-Limiter:** Upstash Serverless Redis.
-* **AI Engine:** Google Gemini / Groq / OpenAI API.
+* **Traffic Controller:** 3-Provider AI Engine Manager (Google Gemini, Groq Cloud API, OpenAI API) with Round-Robin load balancing & automatic failover.
+* **Cache & Rate-Limiter:** Upstash Serverless Redis / In-Memory cache.
