@@ -105,7 +105,7 @@ export default async function DashboardPage() {
   }
 
   if (quizAttempts) {
-    quizAttempts.forEach((attempt) => {
+    quizAttempts.forEach((attempt: any) => {
       const dateStr = attempt.completed_at.substring(0, 10);
       if (activityMap[dateStr] !== undefined) {
         activityMap[dateStr] += 1;
@@ -258,7 +258,7 @@ export default async function DashboardPage() {
           <CardContent className="p-0">
             <div className="divide-y divide-border">
               {quizAttempts && quizAttempts.length > 0 ? (
-                quizAttempts.slice(0, 10).map((attempt, idx) => (
+                quizAttempts.slice(0, 10).map((attempt: any, idx: number) => (
                   <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-muted/30 transition-colors gap-4">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
