@@ -1,0 +1,25 @@
+{
+  "name": "thinkquiz-backend",
+  "version": "1.0.0",
+  "description": "ThinkQuiz Node.js Express & MongoDB Backend",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.34.4",
+    "axios": "^1.8.1",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "openai": "^4.86.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

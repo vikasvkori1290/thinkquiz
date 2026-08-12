@@ -21,8 +21,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { LogOut, Settings, Trash2, Loader2 } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { logoutUser, apiFetch } from "@/utils/auth";
 import { useToast } from "@/hooks/use-toast";
 
 interface AccountSettingsProps {
@@ -32,52 +31,35 @@ interface AccountSettingsProps {
 export function AccountSettings({ userId }: AccountSettingsProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
   const { toast } = useToast();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
+  const handleLogout = () => {
+    logoutUser();
   };
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log("Sending DELETE request to backend...");
-      console.log("Sending DELETE request to backend...");
-      
-      const fetchPromise = fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
+      const res = await apiFetch("/api/user", {
         method: "DELETE",
-        headers: {
-          "Authorization": `Bearer ${session?.access_token}`
-        }
       });
-      
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Backend request timed out after 10 seconds.")), 10000);
-      });
-
-      const res = await Promise.race([fetchPromise, timeoutPromise]) as Response;
-      console.log("Received response from backend:", res.status);
 
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.detail || "Failed to delete account");
       }
 
-      await supabase.auth.signOut();
       toast({
         title: "Account Deleted",
-        description: "Your account and all associated data have been permanently removed.",
+        description: "Your account and all associated data have been permanently removed from MongoDB.",
       });
-      window.location.href = "/";
+
+      logoutUser();
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to delete account.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsDeleting(false);
@@ -120,7 +102,7 @@ export function AccountSettings({ userId }: AccountSettingsProps) {
             </AlertDialogTitle>
             <AlertDialogDescription className="text-base mt-2">
               This action cannot be undone. This will permanently delete your account
-              and wipe all of your gamification data, XP, and history from our servers.
+              and wipe all of your gamification data, XP, and history from our MongoDB servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">

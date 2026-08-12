@@ -25,13 +25,12 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { createClient } from "@/utils/supabase/client";
+import { logoutUser } from "@/utils/auth";
 
 export function CommandMenu() {
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
   const { setTheme } = useTheme();
-  const supabase = createClient();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -100,15 +99,8 @@ export function CommandMenu() {
               <Settings className="mr-2 h-4 w-4" />
               <span>System Theme</span>
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(async () => {
-              try {
-                await supabase.auth.signOut();
-              } catch (e) {
-                console.error("Error signing out:", e);
-              } finally {
-                router.push("/login");
-                router.refresh();
-              }
+            <CommandItem onSelect={() => runCommand(() => {
+              logoutUser();
             })}>
               <LogOut className="mr-2 h-4 w-4 text-destructive" />
               <span className="text-destructive">Log Out</span>
