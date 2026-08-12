@@ -48,10 +48,10 @@ export function createClient() {
         return { error: null };
       },
       async resetPasswordForEmail(email: string, options?: any) {
-        return { data: {}, error: null };
+        return { data: {}, error: null as any };
       },
       async updateUser(attributes: any) {
-        return { data: {}, error: null };
+        return { data: {}, error: null as any };
       },
     },
     from(table: string) {
