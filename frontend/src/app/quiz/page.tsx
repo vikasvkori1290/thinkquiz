@@ -52,7 +52,7 @@ export default async function QuizPage(props: { searchParams: Promise<{ topic?: 
     .eq('user_id', user.id)
     .gte('completed_at', today);
     
-  const completedTodaySlugs = todayAttempts?.map(a => a.problem_slug) || [];
+  const completedTodaySlugs = todayAttempts?.map((a: any) => a.problem_slug) || [];
 
   // 4. Hydrate the client component with real data
   return <QuizClient user={user} initialStats={userStats} completedTodaySlugs={completedTodaySlugs} />;
