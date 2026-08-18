@@ -1,6 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import LandingPage from './components/LandingPage';
+import QuizGenerator from './components/QuizGenerator';
 
 export default function App() {
-  return <LandingPage />;
+  const [view, setView] = useState('landing'); // 'landing' | 'quiz'
+
+  if (view === 'quiz') {
+    return <QuizGenerator onGoHome={() => setView('landing')} />;
+  }
+
+  return (
+    <LandingPage
+      onStartLearning={() => setView('quiz')}
+      onNavigate={() => setView('quiz')}
+    />
+  );
 }
