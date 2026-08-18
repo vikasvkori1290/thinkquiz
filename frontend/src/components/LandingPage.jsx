@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Brain } from 'lucide-react';
+import { User, Brain, Sparkles } from 'lucide-react';
 import heroBrainImg from '../assets/hero_brain.jpg';
 
 export default function LandingPage({ onOpenQuiz }) {
@@ -26,7 +26,8 @@ export default function LandingPage({ onOpenQuiz }) {
             onClick={onOpenQuiz}
             className="bg-amber-500 hover:bg-amber-400 text-black text-xs font-black tracking-wider uppercase px-6 py-3.5 rounded-none font-mono shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
           >
-            <span>START LEARNING</span>
+            <Sparkles className="w-4 h-4 fill-current" />
+            <span>START QUIZ</span>
           </button>
         </div>
       </header>
