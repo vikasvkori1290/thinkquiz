@@ -20,27 +20,8 @@ export default function LandingPage({ onOpenQuiz }) {
           </span>
         </div>
 
-        {/* Center Nav Links */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-          <span className="hover:text-amber-400 transition-colors cursor-pointer">
-            How It Works
-          </span>
-          <span className="hover:text-amber-400 transition-colors cursor-pointer">
-            Features
-          </span>
-          <span className="hover:text-amber-400 transition-colors cursor-pointer">
-            Topics
-          </span>
-          <span className="hover:text-amber-400 transition-colors cursor-pointer">
-            Leaderboard
-          </span>
-        </nav>
-
-        {/* Right Action */}
-        <div className="flex items-center gap-6">
-          <span className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors cursor-pointer">
-            Log In
-          </span>
+        {/* Right CTA Action */}
+        <div>
           <button
             onClick={onOpenQuiz}
             className="bg-amber-500 hover:bg-amber-400 text-black text-xs font-black tracking-wider uppercase px-6 py-3.5 rounded-none font-mono shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
