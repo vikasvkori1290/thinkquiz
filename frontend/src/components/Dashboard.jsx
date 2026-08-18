@@ -5,29 +5,25 @@ import ContributionHeatmap from './ContributionHeatmap';
 export default function Dashboard({ onStartQuiz, onStartSrs }) {
   return (
     <div className="space-y-6 pb-12">
-      {/* Level Progress Banner */}
+      {/* Welcome & Progress Banner */}
       <div className="bg-[#1C1C1F] border border-[#2A2A2E] rounded-2xl p-6 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-5">
-          {/* Level Icon Badge */}
-          <div className="relative">
-            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col items-center justify-center text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
-              <BrainCircuit className="w-7 h-7 mb-0.5" />
-              <span className="text-[10px] font-extrabold tracking-wider bg-amber-500 text-black px-1.5 py-0.2 rounded-full">
-                LVL 12
-              </span>
-            </div>
+          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
+            <BrainCircuit className="w-7 h-7" />
           </div>
-
-          {/* Text Info */}
           <div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Algorithm Architect</h2>
-            <p className="text-xs text-zinc-400 mt-1 font-medium">Keep it up! 120 XP to Level 13.</p>
+            <h2 className="text-xl font-bold text-white tracking-tight">Welcome Back</h2>
+            <p className="text-xs text-zinc-400 mt-1 font-medium">Ready for your next Socratic quiz session?</p>
           </div>
         </div>
 
         {/* Progress Bar Container */}
-        <div className="w-80">
-          <div className="w-full bg-[#2A2A2E] h-2.5 rounded-full overflow-hidden">
+        <div className="w-72 hidden sm:block">
+          <div className="flex justify-between text-xs text-zinc-400 font-medium mb-1.5">
+            <span>Level 12</span>
+            <span>2,488 XP</span>
+          </div>
+          <div className="w-full bg-[#2A2A2E] h-2 rounded-full overflow-hidden">
             <div className="bg-amber-500 h-full rounded-full w-[78%] transition-all duration-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
           </div>
         </div>
@@ -50,10 +46,10 @@ export default function Dashboard({ onStartQuiz, onStartSrs }) {
               </span>
             </div>
             <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors">
-              LeetCode Socratic Quiz
+              LeetCode Quiz
             </h3>
             <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">
-              Test your logic with AI-guided prompts.
+              Test your logic with Socratic AI prompts.
             </p>
           </div>
         </div>
@@ -73,7 +69,7 @@ export default function Dashboard({ onStartQuiz, onStartSrs }) {
               </span>
             </div>
             <h3 className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors">
-              System Design Quiz
+              Web Dev Quiz
             </h3>
             <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">
               Review core concepts & architecture.
@@ -81,15 +77,15 @@ export default function Dashboard({ onStartQuiz, onStartSrs }) {
           </div>
         </div>
 
-        {/* Daily Review SRS Card (Highlighted Alert Border) */}
-        <div className="bg-[#1C1C1F] border-2 border-amber-500/80 rounded-2xl p-6 shadow-[0_0_20px_rgba(245,158,11,0.1)] flex flex-col justify-between">
+        {/* Daily Review SRS Card */}
+        <div className="bg-[#1C1C1F] border border-amber-500/50 rounded-2xl p-6 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center gap-2 mb-2 text-amber-500">
               <AlertTriangle className="w-5 h-5 fill-amber-500/20" />
               <h3 className="text-sm font-bold text-white">Daily Review</h3>
             </div>
             <p className="text-xs text-zinc-300 leading-relaxed font-medium">
-              3 Topics Due for Spaced Repetition Review today.
+              Spaced Repetition review items.
             </p>
           </div>
 
@@ -108,3 +104,4 @@ export default function Dashboard({ onStartQuiz, onStartSrs }) {
     </div>
   );
 }
+

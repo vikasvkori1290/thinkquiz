@@ -1,7 +1,7 @@
 import React from 'react';
-import { LayoutGrid, Gamepad2, Archive, BarChart3, User, Settings, BrainCircuit } from 'lucide-react';
+import { LayoutGrid, Gamepad2, Archive, BarChart3, User, Settings, Brain } from 'lucide-react';
 
-export default function Sidebar({ activeTab, setActiveTab }) {
+export default function Sidebar({ activeTab, setActiveTab, onGoHome }) {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
     { id: 'arena', label: 'Arena', icon: Gamepad2 },
@@ -17,13 +17,13 @@ export default function Sidebar({ activeTab, setActiveTab }) {
   return (
     <aside className="w-64 bg-[#161618] border-r border-[#232326] flex flex-col h-screen sticky top-0 select-none">
       {/* Brand Header */}
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-          <BrainCircuit className="w-6 h-6" />
+      <div className="p-6 flex items-center gap-3 cursor-pointer group" onClick={onGoHome}>
+        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)] group-hover:scale-105 transition-transform">
+          <Brain className="w-6 h-6 text-amber-400" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-1">
-            ThinkQuiz
+          <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-1">
+            Code<span className="text-amber-400">Soch</span>
           </h1>
           <p className="text-xs text-amber-500/80 font-medium tracking-wide">Socratic AI</p>
         </div>
