@@ -5,7 +5,7 @@ export default function Profile() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center gap-6 bg-[#1C1C1F] border border-[#2A2A2E] rounded-2xl p-6 shadow-sm">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 p-0.5 shadow-md">
+        <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-amber-500 to-amber-700 p-0.5 shadow-md">
           <div className="w-full h-full bg-[#161618] rounded-2xl flex items-center justify-center text-xl font-bold text-amber-400">
             AA
           </div>

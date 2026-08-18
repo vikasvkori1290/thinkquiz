@@ -19,7 +19,7 @@ export default function Header({ userStats = { streak: 14, xp: 2488 } }) {
         </div>
 
         {/* User Profile Avatar */}
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 p-0.5 shadow-md cursor-pointer hover:scale-105 transition-transform">
+        <div className="w-9 h-9 rounded-full bg-linear-to-br from-amber-500 to-amber-700 p-0.5 shadow-md cursor-pointer hover:scale-105 transition-transform">
           <div className="w-full h-full bg-[#161618] rounded-full flex items-center justify-center text-xs font-bold text-amber-400">
             AA
           </div>

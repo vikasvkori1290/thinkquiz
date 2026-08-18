@@ -6,7 +6,7 @@ export default function LandingPage({ onStartLearning, onNavigate }) {
   return (
     <div className="min-h-screen bg-[#060608] text-white selection:bg-amber-500 selection:text-black relative overflow-hidden font-sans">
       {/* Background Subtle Gold Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#17140b_1px,transparent_1px),linear-gradient(to_bottom,#17140b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#17140b_1px,transparent_1px),linear-gradient(to_bottom,#17140b_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
 
       {/* Top Navbar */}
       <header className="max-w-7xl mx-auto px-8 h-24 flex items-center justify-between relative z-20">
@@ -122,7 +122,7 @@ export default function LandingPage({ onStartLearning, onNavigate }) {
             />
 
             {/* Content Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#060608] via-[#060608]/40 to-transparent p-8 flex flex-col justify-end">
+            <div className="absolute inset-0 bg-linear-to-t from-[#060608] via-[#060608]/40 to-transparent p-8 flex flex-col justify-end">
               <div className="space-y-3">
                 <h3 className="text-xl font-bold text-white tracking-tight">
                   Cognitive Code Mastery. <br />
