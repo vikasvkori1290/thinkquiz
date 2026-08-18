@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, User, Brain, ArrowRight } from 'lucide-react';
+import { User, Brain } from 'lucide-react';
 import heroBrainImg from '../assets/hero_brain.jpg';
 
 export default function LandingPage({ onOpenQuiz }) {
@@ -22,31 +22,30 @@ export default function LandingPage({ onOpenQuiz }) {
 
         {/* Center Nav Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-          <button className="hover:text-amber-400 transition-colors">
+          <span className="hover:text-amber-400 transition-colors cursor-pointer">
             How It Works
-          </button>
-          <button className="hover:text-amber-400 transition-colors">
+          </span>
+          <span className="hover:text-amber-400 transition-colors cursor-pointer">
             Features
-          </button>
-          <button className="hover:text-amber-400 transition-colors">
+          </span>
+          <span className="hover:text-amber-400 transition-colors cursor-pointer">
             Topics
-          </button>
-          <button className="hover:text-amber-400 transition-colors">
+          </span>
+          <span className="hover:text-amber-400 transition-colors cursor-pointer">
             Leaderboard
-          </button>
+          </span>
         </nav>
 
-        {/* Right CTA Actions */}
+        {/* Right Action */}
         <div className="flex items-center gap-6">
-          <button className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors">
+          <span className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors cursor-pointer">
             Log In
-          </button>
-          {/* Dedicated Quiz Button - ONLY button that navigates to Quiz Page */}
+          </span>
           <button
             onClick={onOpenQuiz}
             className="bg-amber-500 hover:bg-amber-400 text-black text-xs font-black tracking-wider uppercase px-6 py-3.5 rounded-none font-mono shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
           >
-            <span>START QUIZ</span>
+            <span>START LEARNING</span>
           </button>
         </div>
       </header>
@@ -76,22 +75,8 @@ export default function LandingPage({ onOpenQuiz }) {
             CodeSoch uses the Socratic method to guide you through coding challenges. Instead of handing you the answer, we ask the right questions to help you discover it yourself.
           </p>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-6 pt-2">
-            <button className="bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black font-black text-xs tracking-wider uppercase px-8 py-4 font-mono shadow-[0_0_25px_rgba(245,158,11,0.15)] transition-all flex items-center gap-2">
-              <span>EXPLORE PLATFORM</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <button className="flex items-center gap-3 text-xs font-bold text-zinc-300 hover:text-amber-400 tracking-wider uppercase group transition-colors">
-              <div className="w-10 h-10 rounded-full border border-zinc-700 group-hover:border-amber-400 flex items-center justify-center transition-colors">
-                <Play className="w-3.5 h-3.5 text-zinc-300 group-hover:text-amber-400 fill-current" />
-              </div>
-              <span>WATCH DEMO</span>
-            </button>
-          </div>
-
           {/* Social Proof Footer */}
-          <div className="pt-8 flex items-center gap-4 border-t border-zinc-900">
+          <div className="pt-6 flex items-center gap-4 border-t border-zinc-900">
             <div className="flex -space-x-2">
               <div className="w-8 h-8 rounded-full bg-zinc-800 border-2 border-[#060608] flex items-center justify-center text-xs font-bold text-amber-400">
                 <User className="w-4 h-4 text-amber-400" />
@@ -129,11 +114,6 @@ export default function LandingPage({ onOpenQuiz }) {
                 <p className="text-xs text-zinc-400 leading-relaxed font-normal max-w-md">
                   CodeSoch integrates neural networks and algorithmic intelligence to accelerate your coding workflow.
                 </p>
-                <div className="pt-2">
-                  <button className="bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-400 text-xs font-bold px-5 py-2.5 rounded-lg transition-all">
-                    Explore Capabilities
-                  </button>
-                </div>
               </div>
             </div>
           </div>
