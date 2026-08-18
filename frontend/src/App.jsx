@@ -9,10 +9,5 @@ export default function App() {
     return <QuizGenerator onGoHome={() => setView('landing')} />;
   }
 
-  return (
-    <LandingPage
-      onStartLearning={() => setView('quiz')}
-      onNavigate={() => setView('quiz')}
-    />
-  );
+  return <LandingPage onOpenQuiz={() => setView('quiz')} />;
 }

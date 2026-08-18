@@ -1,8 +1,8 @@
 import React from 'react';
-import { Play, Sparkles, User, Brain, ArrowRight } from 'lucide-react';
+import { Play, User, Brain, ArrowRight } from 'lucide-react';
 import heroBrainImg from '../assets/hero_brain.jpg';
 
-export default function LandingPage({ onStartLearning, onNavigate }) {
+export default function LandingPage({ onOpenQuiz }) {
   return (
     <div className="min-h-screen bg-[#060608] text-white selection:bg-amber-500 selection:text-black relative overflow-hidden font-sans">
       {/* Background Subtle Gold Grid Pattern */}
@@ -11,7 +11,7 @@ export default function LandingPage({ onStartLearning, onNavigate }) {
       {/* Top Navbar */}
       <header className="max-w-7xl mx-auto px-8 h-24 flex items-center justify-between relative z-20">
         {/* Brand Logo */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('landing')}>
+        <div className="flex items-center gap-3 cursor-pointer">
           <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
             <Brain className="w-5 h-5 text-amber-400" />
           </div>
@@ -22,30 +22,31 @@ export default function LandingPage({ onStartLearning, onNavigate }) {
 
         {/* Center Nav Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-          <button onClick={() => onNavigate('how-it-works')} className="hover:text-amber-400 transition-colors">
+          <button className="hover:text-amber-400 transition-colors">
             How It Works
           </button>
-          <button onClick={() => onNavigate('features')} className="hover:text-amber-400 transition-colors">
+          <button className="hover:text-amber-400 transition-colors">
             Features
           </button>
-          <button onClick={() => onStartLearning()} className="hover:text-amber-400 transition-colors">
+          <button className="hover:text-amber-400 transition-colors">
             Topics
           </button>
-          <button onClick={() => onNavigate('leaderboard')} className="hover:text-amber-400 transition-colors">
+          <button className="hover:text-amber-400 transition-colors">
             Leaderboard
           </button>
         </nav>
 
         {/* Right CTA Actions */}
         <div className="flex items-center gap-6">
-          <button onClick={() => onStartLearning()} className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors">
+          <button className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors">
             Log In
           </button>
+          {/* Dedicated Quiz Button - ONLY button that navigates to Quiz Page */}
           <button
-            onClick={() => onStartLearning()}
+            onClick={onOpenQuiz}
             className="bg-amber-500 hover:bg-amber-400 text-black text-xs font-black tracking-wider uppercase px-6 py-3.5 rounded-none font-mono shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
           >
-            <span>START LEARNING</span>
+            <span>START QUIZ</span>
           </button>
         </div>
       </header>
@@ -77,10 +78,7 @@ export default function LandingPage({ onStartLearning, onNavigate }) {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-6 pt-2">
-            <button
-              onClick={() => onStartLearning()}
-              className="bg-amber-500 hover:bg-amber-400 text-black font-black text-xs tracking-wider uppercase px-8 py-4 font-mono shadow-[0_0_25px_rgba(245,158,11,0.35)] transition-all flex items-center gap-2"
-            >
+            <button className="bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black font-black text-xs tracking-wider uppercase px-8 py-4 font-mono shadow-[0_0_25px_rgba(245,158,11,0.15)] transition-all flex items-center gap-2">
               <span>EXPLORE PLATFORM</span>
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -132,10 +130,7 @@ export default function LandingPage({ onStartLearning, onNavigate }) {
                   CodeSoch integrates neural networks and algorithmic intelligence to accelerate your coding workflow.
                 </p>
                 <div className="pt-2">
-                  <button
-                    onClick={() => onStartLearning()}
-                    className="bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-400 text-xs font-bold px-5 py-2.5 rounded-lg transition-all"
-                  >
+                  <button className="bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500 hover:text-black text-amber-400 text-xs font-bold px-5 py-2.5 rounded-lg transition-all">
                     Explore Capabilities
                   </button>
                 </div>
